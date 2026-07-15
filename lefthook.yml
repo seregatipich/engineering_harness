@@ -1,0 +1,10 @@
+# docs-guard:pre-push:start
+pre-commit:
+  commands:
+    docs-guard:
+      run: python3 .codex/scripts/docs_guard.py links . --internal && python3 .codex/scripts/docs_guard.py generate --check .
+pre-push:
+  commands:
+    docs-guard:
+      run: scripts/docs-guard .
+# docs-guard:pre-push:end

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Architecture Docs Keeper"
+  short_description: "Keep project documentation synchronized"
+  default_prompt: "Use $architecture-docs-keeper to synchronize this project documentation with the current change."
+
+policy:
+  allow_implicit_invocation: true

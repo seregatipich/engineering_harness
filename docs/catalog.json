@@ -1,0 +1,793 @@
+{
+  "aliases": [],
+  "documents": [
+    {
+      "doc_id": "architecture.area.enforcement",
+      "doc_type": "architecture-area",
+      "parent_id": "architecture.areas.index",
+      "path": "docs/architecture/areas/enforcement/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Enforcement"
+    },
+    {
+      "doc_id": "architecture.area.guidance",
+      "doc_type": "architecture-area",
+      "parent_id": "architecture.areas.index",
+      "path": "docs/architecture/areas/guidance/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Guidance"
+    },
+    {
+      "doc_id": "architecture.area.integration",
+      "doc_type": "architecture-area",
+      "parent_id": "architecture.areas.index",
+      "path": "docs/architecture/areas/integration/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Project integration"
+    },
+    {
+      "doc_id": "architecture.areas.index",
+      "doc_type": "architecture-root",
+      "parent_id": "architecture.root",
+      "path": "docs/architecture/areas/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Architecture areas"
+    },
+    {
+      "doc_id": "architecture.component.documentation.guard",
+      "doc_type": "architecture-component",
+      "parent_id": "architecture.area.enforcement",
+      "path": "docs/architecture/areas/enforcement/components/documentation.guard.md",
+      "profile": "application-runtime",
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0001.stdlib-validator",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        },
+        {
+          "target_id": "architecture.concept.document-graph",
+          "type": "related"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation guard"
+    },
+    {
+      "doc_id": "architecture.component.documentation.lifecycle-hooks",
+      "doc_type": "architecture-component",
+      "parent_id": "architecture.area.enforcement",
+      "path": "docs/architecture/areas/enforcement/components/documentation.lifecycle-hooks.md",
+      "profile": "integration-adapter",
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "depends-on"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        },
+        {
+          "target_id": "architecture.flow.local-documentation-lifecycle",
+          "type": "related"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation lifecycle hooks"
+    },
+    {
+      "doc_id": "architecture.component.documentation.project-integration",
+      "doc_type": "architecture-component",
+      "parent_id": "architecture.area.integration",
+      "path": "docs/architecture/areas/integration/components/documentation.project-integration.md",
+      "profile": "infrastructure",
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "depends-on"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        },
+        {
+          "target_id": "architecture.deployment.local-codex",
+          "type": "related"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation project integration"
+    },
+    {
+      "doc_id": "architecture.component.documentation.workflow-skill",
+      "doc_type": "architecture-component",
+      "parent_id": "architecture.area.guidance",
+      "path": "docs/architecture/areas/guidance/components/documentation.workflow-skill.md",
+      "profile": "shared-library",
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "depends-on"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        },
+        {
+          "target_id": "architecture.concept.document-graph",
+          "type": "related"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation workflow skill"
+    },
+    {
+      "doc_id": "architecture.concept.document-graph",
+      "doc_type": "architecture-concept",
+      "parent_id": "architecture.concepts.index",
+      "path": "docs/architecture/concepts/document-graph.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.workflow-skill",
+          "type": "documents"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0001.stdlib-validator",
+          "type": "decided-by"
+        }
+      ],
+      "status": "active",
+      "title": "Document graph"
+    },
+    {
+      "doc_id": "architecture.concepts.index",
+      "doc_type": "architecture-root",
+      "parent_id": "architecture.root",
+      "path": "docs/architecture/concepts/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Architecture concepts"
+    },
+    {
+      "doc_id": "architecture.container.runtime",
+      "doc_type": "architecture-container",
+      "parent_id": "architecture.system.index",
+      "path": "docs/architecture/system/containers.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.deployment.local-codex",
+          "type": "related"
+        }
+      ],
+      "status": "active",
+      "title": "Runtime containers"
+    },
+    {
+      "doc_id": "architecture.context.system",
+      "doc_type": "architecture-context",
+      "parent_id": "architecture.system.index",
+      "path": "docs/architecture/system/context.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.concept.document-graph",
+          "type": "related"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Engineering harness system context"
+    },
+    {
+      "doc_id": "architecture.deployment.local-codex",
+      "doc_type": "architecture-deployment",
+      "parent_id": "architecture.deployments.index",
+      "path": "docs/architecture/system/deployments/local-codex.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.project-integration",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "depends-on"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Local Codex deployment"
+    },
+    {
+      "doc_id": "architecture.deployments.index",
+      "doc_type": "architecture-root",
+      "parent_id": "architecture.system.index",
+      "path": "docs/architecture/system/deployments/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Deployments"
+    },
+    {
+      "doc_id": "architecture.flow.local-documentation-lifecycle",
+      "doc_type": "architecture-flow",
+      "parent_id": "architecture.flows.index",
+      "path": "docs/architecture/flows/local-documentation-lifecycle.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.workflow-skill",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.project-integration",
+          "type": "documents"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Local documentation lifecycle"
+    },
+    {
+      "doc_id": "architecture.flows.index",
+      "doc_type": "architecture-root",
+      "parent_id": "architecture.root",
+      "path": "docs/architecture/flows/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Architecture flows"
+    },
+    {
+      "doc_id": "architecture.root",
+      "doc_type": "architecture-root",
+      "parent_id": "docs.root",
+      "path": "docs/architecture/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "specified-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        }
+      ],
+      "status": "active",
+      "title": "Architecture"
+    },
+    {
+      "doc_id": "architecture.system.index",
+      "doc_type": "architecture-root",
+      "parent_id": "architecture.root",
+      "path": "docs/architecture/system/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "System"
+    },
+    {
+      "doc_id": "decision.0001.stdlib-validator",
+      "doc_type": "decision",
+      "parent_id": "decisions.root",
+      "path": "docs/decisions/0001-stdlib-validator.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "accepted",
+      "title": "Use a standard-library documentation validator"
+    },
+    {
+      "doc_id": "decision.0002.layered-enforcement",
+      "doc_type": "decision",
+      "parent_id": "decisions.root",
+      "path": "docs/decisions/0002-layered-enforcement.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "accepted",
+      "title": "Enforce documentation at layered lifecycle gates"
+    },
+    {
+      "doc_id": "decision.0003.project-scoped-skill",
+      "doc_type": "decision",
+      "parent_id": "decisions.root",
+      "path": "docs/decisions/0003-project-scoped-skill.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "accepted",
+      "title": "Keep the documentation skill project-scoped"
+    },
+    {
+      "doc_id": "decisions.root",
+      "doc_type": "root",
+      "parent_id": "docs.root",
+      "path": "docs/decisions/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Decisions"
+    },
+    {
+      "doc_id": "development.root",
+      "doc_type": "root",
+      "parent_id": "docs.root",
+      "path": "docs/development/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Development"
+    },
+    {
+      "doc_id": "development.validation",
+      "doc_type": "development",
+      "parent_id": "development.root",
+      "path": "docs/development/validation.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "documents"
+        },
+        {
+          "target_id": "architecture.flow.local-documentation-lifecycle",
+          "type": "related"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Validate the project skill and repository integration"
+    },
+    {
+      "doc_id": "docs.root",
+      "doc_type": "root",
+      "parent_id": null,
+      "path": "docs/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Documentation"
+    },
+    {
+      "doc_id": "journal.component.documentation.guard",
+      "doc_type": "journal-component",
+      "parent_id": "journals.components.index",
+      "path": "docs/journals/components/documentation.guard.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "documents"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation guard journal"
+    },
+    {
+      "doc_id": "journal.component.documentation.lifecycle-hooks",
+      "doc_type": "journal-component",
+      "parent_id": "journals.components.index",
+      "path": "docs/journals/components/documentation.lifecycle-hooks.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "documents"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation lifecycle hooks journal"
+    },
+    {
+      "doc_id": "journal.component.documentation.project-integration",
+      "doc_type": "journal-component",
+      "parent_id": "journals.components.index",
+      "path": "docs/journals/components/documentation.project-integration.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.project-integration",
+          "type": "documents"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation project integration journal"
+    },
+    {
+      "doc_id": "journal.component.documentation.workflow-skill",
+      "doc_type": "journal-component",
+      "parent_id": "journals.components.index",
+      "path": "docs/journals/components/documentation.workflow-skill.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.workflow-skill",
+          "type": "documents"
+        }
+      ],
+      "status": "active",
+      "title": "Documentation workflow skill journal"
+    },
+    {
+      "doc_id": "journal.task.20260715-architecture-docs-keeper-v2",
+      "doc_type": "journal-task",
+      "parent_id": "journals.tasks.index",
+      "path": "docs/journals/tasks/20260715-architecture-docs-keeper-v2.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "changes"
+        },
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "changes"
+        },
+        {
+          "target_id": "architecture.component.documentation.workflow-skill",
+          "type": "changes"
+        },
+        {
+          "target_id": "architecture.component.documentation.project-integration",
+          "type": "changes"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "changes"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "changes"
+        }
+      ],
+      "status": "closed",
+      "title": "Dogfood architecture-docs-keeper v2"
+    },
+    {
+      "doc_id": "journals.components.index",
+      "doc_type": "journal-root",
+      "parent_id": "journals.root",
+      "path": "docs/journals/components/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Component journals"
+    },
+    {
+      "doc_id": "journals.root",
+      "doc_type": "journal-root",
+      "parent_id": "docs.root",
+      "path": "docs/journals/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Journals"
+    },
+    {
+      "doc_id": "journals.tasks.index",
+      "doc_type": "journal-root",
+      "parent_id": "journals.root",
+      "path": "docs/journals/tasks/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Task journals"
+    },
+    {
+      "doc_id": "operations.installation",
+      "doc_type": "operations",
+      "parent_id": "operations.root",
+      "path": "docs/operations/installation.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.project-integration",
+          "type": "documents"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "architecture.deployment.local-codex",
+          "type": "related"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "active",
+      "title": "Use the project-local architecture documentation skill"
+    },
+    {
+      "doc_id": "operations.root",
+      "doc_type": "root",
+      "parent_id": "docs.root",
+      "path": "docs/operations/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Operations"
+    },
+    {
+      "doc_id": "plan.20260715-architecture-docs-keeper-v2",
+      "doc_type": "plan",
+      "parent_id": "plans.root",
+      "path": "docs/plans/20260715-architecture-docs-keeper-v2.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "architecture.component.documentation.guard",
+          "type": "changes"
+        },
+        {
+          "target_id": "architecture.component.documentation.lifecycle-hooks",
+          "type": "changes"
+        },
+        {
+          "target_id": "architecture.component.documentation.workflow-skill",
+          "type": "changes"
+        },
+        {
+          "target_id": "architecture.component.documentation.project-integration",
+          "type": "changes"
+        },
+        {
+          "target_id": "specification.architecture-documentation-system-v2",
+          "type": "changes"
+        },
+        {
+          "target_id": "decision.0001.stdlib-validator",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "completed",
+      "title": "Dogfood architecture-docs-keeper v2"
+    },
+    {
+      "doc_id": "plans.root",
+      "doc_type": "root",
+      "parent_id": "docs.root",
+      "path": "docs/plans/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Plans"
+    },
+    {
+      "doc_id": "specification.architecture-documentation-system-v2",
+      "doc_type": "specification",
+      "parent_id": "specifications.root",
+      "path": "docs/specifications/architecture-documentation-system-v2.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [
+        {
+          "target_id": "decision.0001.stdlib-validator",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0002.layered-enforcement",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "decision.0003.project-scoped-skill",
+          "type": "decided-by"
+        },
+        {
+          "target_id": "journal.task.20260715-architecture-docs-keeper-v2",
+          "type": "verified-by"
+        }
+      ],
+      "status": "approved",
+      "title": "Architecture documentation system v2"
+    },
+    {
+      "doc_id": "specifications.root",
+      "doc_type": "root",
+      "parent_id": "docs.root",
+      "path": "docs/specifications/README.md",
+      "profile": null,
+      "redirect_to": null,
+      "relations": [],
+      "status": "active",
+      "title": "Specifications"
+    }
+  ],
+  "root_doc_id": "docs.root",
+  "schema_version": 2
+}
