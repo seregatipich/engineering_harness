@@ -688,6 +688,65 @@ class DocsGuardAdversarialTestCase(unittest.TestCase):
 
         self.assert_issue_matches(issues, r"(?:append.only|history.*rewrite|journal.*rewrit)")
 
+    def test_component_journal_timeline_accepts_appended_entry(self) -> None:
+        """A new chronological Timeline entry preserves existing journal history."""
+        journal = self.repository / "docs/journals/components/auth.md"
+        journal.write_text(
+            journal.read_text().replace(
+                "\n## Current operational notes",
+                "\n### 2026-01-02T00:00:00Z\n\n"
+                "Change: verified the authentication boundary.\n\n"
+                "Evidence: the component regression suite passed.\n\n"
+                "Result: the recorded boundary remains active.\n\n"
+                "## Current operational notes",
+            ),
+            encoding="utf-8",
+        )
+
+        issues, _ = docs_guard.audit_repository(self.repository, base=self.base)
+
+        self.assertFalse(
+            any(issue.code == "protected_history_rewrite" for issue in issues),
+            self._issue_text(issues),
+        )
+
+    def test_accepted_decision_accepts_appended_amendment(self) -> None:
+        """Accepted decisions permit additions only in their Amendments section."""
+        decision = self._write(
+            "docs/decisions/0001-auth-boundary.md",
+            front_matter(
+                doc_id="decision.0001.auth-boundary",
+                doc_type="decision",
+                title="Authentication boundary",
+                status="accepted",
+                parent_id="decisions.root",
+            )
+            + decision_body(
+                "Authentication boundary", "Original accepted rationale."
+            ),
+        )
+        issues, _ = docs_guard.generate_repository(self.repository, write=True)
+        self.assertEqual([], issues)
+        self._git("add", "-A")
+        self._git("commit", "--quiet", "-m", "accepted decision")
+        decision_base = self._git("rev-parse", "HEAD").stdout.strip()
+        decision.write_text(
+            decision.read_text().replace(
+                "\n## Related documentation",
+                "\n### 2026-01-02T00:00:00Z\n\n"
+                "Clarification: the accepted boundary remains unchanged.\n\n"
+                "## Related documentation",
+            ),
+            encoding="utf-8",
+        )
+
+        issues, _ = docs_guard.audit_repository(self.repository, base=decision_base)
+
+        self.assertFalse(
+            any(issue.code == "protected_history_rewrite" for issue in issues),
+            self._issue_text(issues),
+        )
+
     def test_deleted_tracked_source_is_reported_as_missing(self) -> None:
         """A stale catalog cannot keep a deleted tracked source looking present."""
         (self.repository / "src/auth.py").unlink()

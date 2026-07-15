@@ -2701,6 +2701,70 @@ def _authored_history_body(text: str) -> str:
     return "\n".join(lines).rstrip()
 
 
+def _split_authored_h2_sections(body: str) -> tuple[str, list[tuple[str, str]]]:
+    """Split authored history into an immutable preamble and ordered H2 sections."""
+    lines = body.splitlines()
+    headings: list[tuple[int, str]] = []
+    for line_number, line in _visible_markdown_lines(body):
+        match = re.match(r"^ {0,3}##\s+(.+?)\s*#*\s*$", line)
+        if match:
+            headings.append((line_number - 1, match.group(1).strip()))
+    if not headings:
+        return body.rstrip(), []
+    preamble = "\n".join(lines[: headings[0][0]]).rstrip()
+    sections: list[tuple[str, str]] = []
+    for heading_index, (line_index, heading) in enumerate(headings):
+        next_index = (
+            headings[heading_index + 1][0]
+            if heading_index + 1 < len(headings)
+            else len(lines)
+        )
+        sections.append(
+            (heading, "\n".join(lines[line_index + 1 : next_index]).rstrip())
+        )
+    return preamble, sections
+
+
+def _sectioned_history_is_append_only(old_body: str, new_body: str) -> bool:
+    """Allow journal additions inside existing sections without permitting rewrites."""
+    old_preamble, old_sections = _split_authored_h2_sections(old_body)
+    new_preamble, new_sections = _split_authored_h2_sections(new_body)
+    if old_preamble != new_preamble:
+        return False
+    if [heading for heading, _ in old_sections] != [
+        heading for heading, _ in new_sections
+    ]:
+        return False
+    return all(
+        new_content == old_content or new_content.startswith(old_content + "\n")
+        for (_, old_content), (_, new_content) in zip(old_sections, new_sections)
+    )
+
+
+def _decision_history_is_append_only(old_body: str, new_body: str) -> bool:
+    """Permit accepted-decision additions only under the Amendments section."""
+    old_preamble, old_sections = _split_authored_h2_sections(old_body)
+    new_preamble, new_sections = _split_authored_h2_sections(new_body)
+    if old_preamble != new_preamble:
+        return False
+    if [heading for heading, _ in old_sections] != [
+        heading for heading, _ in new_sections
+    ]:
+        return False
+    amendments_seen = False
+    for (heading, old_content), (_, new_content) in zip(old_sections, new_sections):
+        if heading == "Amendments":
+            amendments_seen = True
+            if not (
+                new_content == old_content
+                or new_content.startswith(old_content + "\n")
+            ):
+                return False
+        elif new_content != old_content:
+            return False
+    return amendments_seen
+
+
 def _catalog_selects_path(catalog: dict[str, object] | None, path: str) -> bool:
     """Return whether a catalog inventory includes and does not exclude ``path``."""
     if catalog is None:
@@ -2844,9 +2908,14 @@ def validate_changes_against_base(
             continue
         old_body = _authored_history_body(base_text)
         new_body = _authored_history_body(current_document.text)
-        valid = new_body == old_body if exact else (
-            new_body == old_body or new_body.startswith(old_body + "\n")
-        )
+        if exact:
+            valid = new_body == old_body
+        elif doc_type in {"journal-task", "journal-component"}:
+            valid = _sectioned_history_is_append_only(old_body, new_body)
+        elif doc_type == "decision":
+            valid = _decision_history_is_append_only(old_body, new_body)
+        else:
+            valid = new_body == old_body or new_body.startswith(old_body + "\n")
         if not valid:
             issues.append(
                 Issue(

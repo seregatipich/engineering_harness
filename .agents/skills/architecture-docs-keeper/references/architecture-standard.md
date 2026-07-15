@@ -624,11 +624,12 @@ Journal rules:
 
 1. Timeline entries use an ISO 8601 UTC timestamp heading and record change, evidence, and result.
 2. Append entries in chronological order.
-3. Never delete, reorder, or rewrite an existing entry.
-4. Correct an error by appending a correction that identifies the original timestamp.
-5. Do not insert reconstructed history without evidence. Mark imported history with its source revision.
-6. Close a task journal only after its verification and outcome are recorded.
-7. A component journal remains active until the component is removed; then append the removal evidence and close it.
+3. After a journal enters Git history, preserve its preamble, H2 order, and existing section content byte-for-byte; add evidence only as a suffix to the applicable section.
+4. Never delete, reorder, or rewrite an existing entry.
+5. Correct an error by appending a correction that identifies the original timestamp.
+6. Do not insert reconstructed history without evidence. Mark imported history with its source revision.
+7. Close a task journal only after its verification and outcome are recorded.
+8. A component journal remains active until the component is removed; then append the removal evidence and close it.
 
 ## Decisions
 

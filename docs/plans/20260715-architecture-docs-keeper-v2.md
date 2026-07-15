@@ -55,7 +55,7 @@ All four catalog components are affected because their pages, journals, ownershi
 
 ## Verification
 
-All 80 executable tests passed: 15 guard tests in 17.265 seconds, 30 adversarial tests in 67.990 seconds, 24 hook tests in 229.453 seconds, 6 skill-contract tests in 1.505 seconds, and 5 repository-contract tests in 1.046 seconds. `generate --write` exited successfully, `generate --check` reported current output, internal links passed for 39 documents, and both full and `origin/dev` base audits passed for 39 documents and 14 owned sources.
+All 82 executable tests passed: 77 skill tests comprising 15 guard, 32 adversarial, 24 hook, and 6 skill-contract cases passed in 224.933 seconds; 5 repository-contract tests passed in 0.227 seconds. `generate --write` exited successfully, `generate --check` reported current output, internal links passed for 39 documents, and both full and `origin/dev` base audits passed for 39 documents and 14 owned sources.
 
 ## Rollout and recovery
 
@@ -63,7 +63,7 @@ Rollout distributes the project-local skill with the repository revision, refres
 
 ## Outcome
 
-The project-local skill is represented by a complete 39-document graph, three areas, four components, 19 exactly owned files with no exclusion, three guard dependencies, and ADR 0003 for project-scoped discovery. All 80 tests and every documentation gate passed, so the plan is completed.
+The project-local skill is represented by a complete 39-document graph, three areas, four components, 19 exactly owned files with no exclusion, three guard dependencies, and ADR 0003 for project-scoped discovery. All 82 tests and every documentation gate passed, so the plan is completed.
 
 ## Related documentation
 

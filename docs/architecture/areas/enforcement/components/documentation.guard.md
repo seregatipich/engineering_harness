@@ -26,7 +26,7 @@ The documentation guard is a standard-library Python CLI implementing schema-v2 
 
 ## Responsibility
 
-It owns parsing Markdown front matter, validating the document and component graphs, expanding exact inventory patterns, enforcing source ownership and required sections, generating navigation and `docs/catalog.json`, and protecting append-only records during base audits.
+It owns parsing Markdown front matter, validating the document and component graphs, expanding exact inventory patterns, enforcing source ownership and required sections, generating navigation and `docs/catalog.json`, and protecting section-aware append-only records during base audits.
 
 ## Boundaries
 
@@ -62,7 +62,7 @@ Human diagnostics include path, line when available, issue code, and message. JS
 
 ## Tests and evidence
 
-`test_docs_guard.py` covers graph, catalog, links, generation, bootstrap, migration, and CLI behavior. `test_docs_guard_adversarial.py` covers false-pass, false-fail, unsafe glob, symlink, marker, atomic migration, history, reverse graph, and canonical-schema boundaries.
+`test_docs_guard.py` covers graph, catalog, links, generation, bootstrap, migration, and CLI behavior. `test_docs_guard_adversarial.py` covers false-pass, false-fail, unsafe glob, symlink, marker, atomic migration, history rewrites, valid journal and decision appends, reverse graph, and canonical-schema boundaries.
 
 ## Change impact
 

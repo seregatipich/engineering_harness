@@ -33,6 +33,14 @@ Evidence: `test_skill_contract.py` passed 6 tests in 1.505 seconds and ADR 0003 
 
 Result: the complete agent-facing workflow contract passes at project scope.
 
+### 2026-07-15T09:44:12Z
+
+Change: clarified the normative journal rule for section-preserving append operations after a record enters Git history.
+
+Evidence: the standard now matches the section-aware guard implementation, and all 6 skill contract tests passed within the complete 77-test skill suite.
+
+Result: agent guidance and executable history validation define the same append-only behavior.
+
 ## Current operational notes
 
 The standard is normative and must remain synchronized with guard schema and behavior. Guidance resolves the checked-in skill from the Git root and forbids user-level copies as project contracts.

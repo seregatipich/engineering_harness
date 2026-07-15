@@ -67,13 +67,25 @@ Evidence: all 45 guard tests and all 5 repository contract tests passed; generat
 
 Result: the final local state is green and ready for replacement feature-branch CI.
 
+### 2026-07-15T09:44:12Z
+
+Change: fixed section-aware protected-history validation after replacement workflow 29405127478 rejected valid Timeline appends.
+
+Evidence: two new adversarial regressions cover valid component-journal Timeline and accepted-decision Amendments additions; existing rewrite regressions remain green. The full skill suite passed 77 tests in 224.933 seconds and the repository contract passed 5 tests in 0.227 seconds.
+
+Result: all 82 local tests pass, valid append-only history is accepted, and historical rewrites remain blocked.
+
 ## Verification evidence
 
 Every selected catalog path exists, all four component IDs have canonical pages and journals, skill resources resolve under `.agents/skills`, and the repository guard copy matches the canonical project guard. Direct test-file execution passed 80 cases with no failure or skip. Generation, stability, internal links, full audit, and `origin/dev` base audit all passed on the closure state.
 
+After the section-aware history regression fix, the final executable total is 82 passing cases: 77 skill tests and 5 repository contracts.
+
 ## Outcome
 
 The documentation graph is complete and synchronized with the project-scoped skill architecture. The plan is completed, ADR 0003 records the durable discovery choice, all 80 tests pass, and all required documentation gates pass; no documentation limitation remains.
+
+The final regression suite supersedes the earlier count: all 82 tests pass, including valid append and protected-rewrite cases.
 
 ## Related documentation
 

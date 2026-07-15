@@ -49,6 +49,14 @@ Evidence: all 15 guard and 30 adversarial tests passed in 44.251 seconds; guard-
 
 Result: the checkout-major update preserves bootstrap, migration, generation, link, audit, and safety behavior.
 
+### 2026-07-15T09:44:12Z
+
+Change: corrected protected-history comparison to evaluate authored H2 sections instead of requiring the entire Markdown body to remain a byte prefix.
+
+Evidence: workflow 29405127478 reproduced the false rejection on three valid Timeline appends; new regressions prove that Timeline and accepted-decision Amendments appends pass while journal rewrites and accepted rationale rewrites still fail. The complete 77-test skill suite passed in 224.933 seconds.
+
+Result: append-only records can receive chronological evidence after entering Git history without weakening rewrite protection.
+
 ## Current operational notes
 
 The project-skill script is authoritative and the `.codex` copy must remain byte-identical. Explicit generation and audit commands are the operational health checks; the shell wrapper performs generated-state and base-aware audit gates.
