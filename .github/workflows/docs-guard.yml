@@ -1,0 +1,44 @@
+name: docs-guard
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  docs-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run available documentation contract tests
+        run: |
+          if [ -d .agents/skills/architecture-docs-keeper/tests ]; then
+            PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s .agents/skills/architecture-docs-keeper/tests -v
+          fi
+          if [ -f tests/test_repository_contract.py ]; then
+            PYTHONDONTWRITEBYTECODE=1 python3 tests/test_repository_contract.py -v
+          fi
+      - name: Check internal documentation links
+        run: python3 .codex/scripts/docs_guard.py links . --internal
+      - name: Check generated documentation
+        run: python3 .codex/scripts/docs_guard.py generate --check .
+      - name: Audit complete documentation
+        run: python3 .codex/scripts/docs_guard.py audit . --format human
+      - name: Audit documentation change
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BASE: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          base="${PR_BASE:-$PUSH_BASE}"
+          if [ -z "$base" ] || printf '%s' "$base" | grep -Eq '^0+$' || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            base=""
+            if [ -n "$DEFAULT_BRANCH" ] && git rev-parse --verify "origin/$DEFAULT_BRANCH^{commit}" >/dev/null 2>&1; then
+              base=$(git merge-base HEAD "origin/$DEFAULT_BRANCH" 2>/dev/null || true)
+            fi
+          fi
+          if [ -z "$base" ]; then
+            base=$(git hash-object -t tree /dev/null)
+          fi
+          python3 .codex/scripts/docs_guard.py audit . --base "$base" --format human
