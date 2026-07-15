@@ -51,6 +51,22 @@ Evidence: `generate --write` exited 0, `generate --check` reported current docum
 
 Result: the task journal is closed with all requested architecture records, executable tests, generated projections, graph links, ownership checks, and change-aware history checks passing.
 
+### 2026-07-15T09:34:07Z
+
+Change: upgraded the managed and committed checkout action to v6 after delivery validation exposed the v4 Node 20 deprecation annotation.
+
+Evidence: feature workflow 29404917170 passed, the annotation identified the obsolete runtime, and the official checkout release documents v6 for Node 24 runners.
+
+Result: the warning source is removed; affected guard and project-integration contracts require a fresh run before final delivery.
+
+### 2026-07-15T09:35:29Z
+
+Change: completed local regression validation for the checkout v6 update.
+
+Evidence: all 45 guard tests and all 5 repository contract tests passed; generation remained current, internal links passed for 39 documents, and both full and `origin/dev` base audits passed for 39 documents and 14 owned sources.
+
+Result: the final local state is green and ready for replacement feature-branch CI.
+
 ## Verification evidence
 
 Every selected catalog path exists, all four component IDs have canonical pages and journals, skill resources resolve under `.agents/skills`, and the repository guard copy matches the canonical project guard. Direct test-file execution passed 80 cases with no failure or skip. Generation, stability, internal links, full audit, and `origin/dev` base audit all passed on the closure state.

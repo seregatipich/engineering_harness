@@ -33,6 +33,22 @@ Evidence: `test_docs_guard.py` passed 15 tests in 17.265 seconds, `test_docs_gua
 
 Result: all 45 guard tests and the repository-facing guard contracts pass on the final project-scoped implementation.
 
+### 2026-07-15T09:34:07Z
+
+Change: updated the managed GitHub workflow template from `actions/checkout@v4` to `actions/checkout@v6` after the feature-branch run reported the Node 20 deprecation.
+
+Evidence: the official checkout release and repository documentation identify v6 as the current Node 24 release; the hosted feature workflow exposed the v4 deprecation annotation.
+
+Result: bootstrap and the committed workflow now use the same current checkout major without changing the documentation guard interface.
+
+### 2026-07-15T09:35:29Z
+
+Change: reran the complete guard test surface after updating the managed workflow template.
+
+Evidence: all 15 guard and 30 adversarial tests passed in 44.251 seconds; guard-copy parity and generated documentation also passed.
+
+Result: the checkout-major update preserves bootstrap, migration, generation, link, audit, and safety behavior.
+
 ## Current operational notes
 
 The project-skill script is authoritative and the `.codex` copy must remain byte-identical. Explicit generation and audit commands are the operational health checks; the shell wrapper performs generated-state and base-aware audit gates.

@@ -33,6 +33,22 @@ Evidence: `tests/test_repository_contract.py` passed all 5 tests in 1.046 second
 
 Result: the project-integration contract passes without a plugin tree, marketplace entry, or user-level installation.
 
+### 2026-07-15T09:34:07Z
+
+Change: replaced `actions/checkout@v4` with `actions/checkout@v6` in the documentation workflow.
+
+Evidence: feature workflow 29404917170 passed all gates but emitted the GitHub runner annotation that checkout v4 targets deprecated Node 20; the official checkout release documents Node 24 and the required hosted-runner generation for v6.
+
+Result: the workflow remains functionally identical and no longer selects the deprecated action runtime.
+
+### 2026-07-15T09:35:29Z
+
+Change: reran the repository integration contract and documentation gates after the workflow update.
+
+Evidence: all 5 repository contract tests passed; generated state, 39 internal documents, full audit, and `origin/dev` base audit passed.
+
+Result: local workflow structure, exact ownership, guard parity, link integrity, and change-aware enforcement remain valid.
+
 ## Current operational notes
 
 The wrapper resolves an explicit base, upstream merge base, known default-branch merge base, or empty-tree object. CI prefers a valid event base, then the remote default-branch merge base, then empty tree. Both retain change-aware auditing.
