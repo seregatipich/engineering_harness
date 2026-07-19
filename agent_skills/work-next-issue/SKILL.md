@@ -1,18 +1,14 @@
 ---
 name: work-next-issue
-description: Pull the next GitHub issue by milestone or priority, research it against the codebase and docs, post the findings as a comment on the issue, then implement it test-first and verify everything passes. Use when the user wants Claude to pick up tracked GitHub work and take it to a tested, verified state. Triggers include "take the next issue", "work the milestone", "pick up an issue and write tests", or naming a specific issue number to work.
-argument-hint: [issue-number (optional)]
-allowed-tools: Bash(gh auth status), Bash(gh repo view *), Bash(gh api *), Bash(gh issue list *), Bash(gh issue view *), Bash(gh label create *), Bash(git status *), Bash(git branch *), Bash(git checkout *), Bash(git switch *), Bash(git log *), Bash(git diff *)
+description: Pull the next GitHub issue by milestone or priority, research it against the codebase and docs, post the findings as a comment on the issue, then implement it test-first and verify everything passes. Use when the user wants Claude to pick up tracked GitHub work and take it to a tested, verified state. Triggers include "take the next issue", "work the milestone", "pick up an issue and write tests".
 ---
 
 # Work the next GitHub issue
 
-Works in **any** git repo with a GitHub `origin` and an authenticated `gh` CLI — it
-detects the current repo itself. One run handles exactly one issue end to end: select it,
-document the research on the issue, then deliver tested, verified work on a branch.
-
-If `$ARGUMENTS` names an issue (a number, or `#<n>`), skip selection and work that issue —
-even if it is assigned or labeled `in-progress`. Otherwise select as below.
+Portable skill. Run it inside **any** git repository that has a GitHub `origin` and an
+authenticated `gh` CLI — it detects the current repository itself, so nothing here is
+tied to a specific repo. One run handles exactly one issue end to end: select it,
+document the research on the issue, and deliver tested, verified work on a branch.
 
 ## Prerequisites
 
@@ -55,9 +51,7 @@ gh label create "priority:low"      -c 0e8a16 -R "$REPO" 2>/dev/null || true
 ## 2. Research
 
 - Read the issue and every comment: `gh issue view <n> --repo "$REPO" --comments`.
-- Explore the codebase for each file and behavior the issue touches. For anything beyond a
-  couple of files, dispatch an **Explore subagent** so the file reads land in isolated
-  context and only the findings return here.
+- Explore the codebase for each file and behavior the issue touches (Explore/Grep/Read).
 - For any third-party API or SDK, check the **installed version's** official docs, not memory.
 - Produce, concretely:
   - a one-paragraph restatement of the problem,
