@@ -1,8 +1,6 @@
 ---
 name: work-next-issue
 description: Pull the next GitHub issue by milestone or priority, research it against the codebase and docs, post the findings as a comment on the issue, then implement it test-first and verify everything passes. Use when the user wants Claude to pick up tracked GitHub work and take it to a tested, verified state. Triggers include "take the next issue", "work the milestone", "pick up an issue and write tests", or naming a specific issue number to work.
-argument-hint: [issue-number (optional)]
-allowed-tools: Bash(gh auth status), Bash(gh repo view *), Bash(gh api *), Bash(gh issue list *), Bash(gh issue view *), Bash(gh label create *), Bash(git status *), Bash(git branch *), Bash(git checkout *), Bash(git switch *), Bash(git log *), Bash(git diff *)
 ---
 
 # Work the next GitHub issue
