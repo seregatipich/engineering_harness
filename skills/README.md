@@ -34,9 +34,13 @@ ls -l ~/.claude/skills/                        # → symlinks into …/engineeri
 head -3 ~/.claude/skills/work-next-issue/SKILL.md   # frontmatter reads through the link
 ```
 
-Skills are discovered at session start. In a **new** session, each one appears in the skill list
-and can be invoked by name — `/work-next-issue`, `/architecture-blueprint-generator` — or
-triggered automatically when a request matches its `description`.
+Claude Code watches `~/.claude/skills/` and picks up added, edited, and removed skills during a
+running session — no restart. The exception is the first install: if `~/.claude/skills/` did not
+exist when the session started, it isn't being watched yet, so restart Claude Code once.
+
+Type `/` to confirm each skill is listed. Invoke one by name — `/work-next-issue`,
+`/architecture-blueprint-generator` — or let Claude load it when a request matches its
+`description`.
 
 ## Adding a skill
 
@@ -44,11 +48,14 @@ Create `skills/<name>/SKILL.md` with frontmatter:
 
 ```yaml
 ---
-name: <name>                     # must match the directory name
-description: <what it does, plus the phrasings that should trigger it>
-argument-hint: "<optional, shown for slash-command arguments>"
+description: <what it does, plus the phrasings that should trigger it — key use case first>
+argument-hint: "<optional, shown during autocomplete>"
 ---
 ```
 
-Write the body as instructions addressed to Claude. Then re-run the install loop above and start
-a new session.
+Every field is optional; `description` is the one that decides when Claude reaches for the skill.
+The **directory name** becomes the command (`skills/deploy-staging/` → `/deploy-staging`); a
+`name:` field only sets the label in listings and does not rename the command.
+
+Write the body as instructions addressed to Claude, and keep it under ~500 lines — move reference
+material into sibling files and link to them from `SKILL.md`. Then re-run the install loop above.
