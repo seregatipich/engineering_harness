@@ -56,7 +56,7 @@ Issue stays open with `awaiting-release` until promotion to main.
 ```
 ## Skipped this run
 
-Reason: <unimplementable as written: what was found | 3 failed verification cycles: what was tried | pipelined behind skipped #<n>: this issue builds on its change>
+Reason: <unimplementable as written: what was found | 3 failed verification cycles: what was tried | unprovisionable infra <item>: provisioning attempted via <what was tried>, failed because <why>; unblock with `<commands>` | pipelined behind skipped #<n>: this issue builds on its change>
 State: no changes merged; dev is clean; branch <deleted | left at <ref> for reference>
 Suggested next step for a human: <concrete pointer>
 ```
@@ -71,6 +71,7 @@ Batch progress:
 | # | Title | Status | Branch | Tests added | Deviations |
 |---|-------|--------|--------|-------------|------------|
 
+Environment: <"already current" | provisioned: <items>>; unprovisionable: <"none" | <items> — unblock with `<commands>`>
 Shortfall: <"none" | a cap was given but only X eligible issues matched — why>
 Follow-ups (combined, Rules 6–7): <list>
 Run ends at dev. Promotion to main only on explicit request.
