@@ -9,9 +9,13 @@ engineering_harness/
 ├── rules/
 │   ├── CLAUDE_global.md    # instructions loaded in every session, in every project
 │   └── README.md
-└── skills/
-    ├── work-next-issue/SKILL.md
-    ├── architecture-blueprint-generator/SKILL.md
+├── skills/
+│   ├── work-next-issue/SKILL.md
+│   ├── architecture-blueprint-generator/SKILL.md
+│   └── README.md
+└── hooks/
+    ├── loop-protocol-context.sh   # SessionStart: arms the done-loop
+    ├── loop-until-done.sh          # Stop: the done-gate
     └── README.md
 ```
 
@@ -19,8 +23,9 @@ engineering_harness/
 | --- | --- | --- |
 | `rules/CLAUDE_global.md` | `~/.claude/CLAUDE.md` | User instructions — all your projects |
 | `skills/<name>/` | `~/.claude/skills/<name>/` | Personal skills — all your projects |
+| `hooks/*.sh` | `~/.claude/hooks/` + `~/.claude/settings.json` | The loop-until-done gate — all your projects |
 
-Both are the *user* scope: personal to you, applied to every repository you open. Nothing here
+All three are the *user* scope: personal to you, applied to every repository you open. Nothing here
 is committed into the projects you work on.
 
 ## Install
@@ -38,6 +43,11 @@ mkdir -p ~/.claude/skills
 for skill in "$REPO"/skills/*/; do
   ln -sfn "${skill%/}" ~/.claude/skills/"$(basename "$skill")"
 done
+
+# Hooks → ~/.claude/hooks/  (then register them in settings.json — see hooks/README.md)
+mkdir -p ~/.claude/hooks
+ln -sfn "$REPO/hooks/loop-protocol-context.sh" ~/.claude/hooks/loop-protocol-context.sh
+ln -sfn "$REPO/hooks/loop-until-done.sh"       ~/.claude/hooks/loop-until-done.sh
 ```
 
 Claude Code supports this directly: a skill entry under `~/.claude/skills/` may be a symlink to a
@@ -51,6 +61,10 @@ skill or moving the clone.
 **Before you run it**, check whether `~/.claude/CLAUDE.md` already exists as a *regular file*. If
 it does, it holds instructions that exist nowhere else — merge them into `rules/CLAUDE_global.md`
 first, because the symlink replaces it.
+
+The hooks need **one more step** the symlinks can't cover: merge their `SessionStart`/`Stop`
+entries into `~/.claude/settings.json`. See [`hooks/README.md`](hooks/README.md) for the block to
+add and what the gate enforces.
 
 ## Verify
 
@@ -128,5 +142,5 @@ These remove only the symlinks. The real files stay in this repo.
   [plugin](https://code.claude.com/docs/en/plugins) and distribute it through a marketplace
   instead of asking them to symlink your repo.
 
-Per-directory detail lives in [`rules/README.md`](rules/README.md) and
-[`skills/README.md`](skills/README.md).
+Per-directory detail lives in [`rules/README.md`](rules/README.md),
+[`skills/README.md`](skills/README.md), and [`hooks/README.md`](hooks/README.md).
