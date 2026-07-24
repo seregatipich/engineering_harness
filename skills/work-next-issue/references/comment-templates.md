@@ -5,7 +5,7 @@ Post comments with a temp file: `gh issue comment <n> --repo <owner/repo> --body
 ## 1. Per-issue plan comment (Step 4)
 
 ```
-## Plan (batch run <date>, issue <k> of <N>)
+## Plan (batch run <date>, issue <k> of <total>)
 
 Canonical Master Plan: <link to the canonical plan comment>
 
@@ -29,8 +29,8 @@ Canonical Master Plan: <link to the canonical plan comment>
 - <exact commands>
 - End to end: <how the behavior will be driven>
 
-### Execution order note
-Position <k> of <N>; <reason if reordered>.
+### Scheduling note
+Bucket: <parallel group | pipeline after #<m> | serialized — overlaps #<m> on <files>>. Merge position <k> of <total>.
 ```
 
 ## 2. Closing comment (Step 5, as each issue finishes)
@@ -56,7 +56,7 @@ Issue stays open with `awaiting-release` until promotion to main.
 ```
 ## Skipped this run
 
-Reason: <unimplementable as written: what was found | 3 failed verification cycles: what was tried>
+Reason: <unimplementable as written: what was found | 3 failed verification cycles: what was tried | pipelined behind skipped #<n>: this issue builds on its change>
 State: no changes merged; dev is clean; branch <deleted | left at <ref> for reference>
 Suggested next step for a human: <concrete pointer>
 ```
@@ -71,7 +71,7 @@ Batch progress:
 | # | Title | Status | Branch | Tests added | Deviations |
 |---|-------|--------|--------|-------------|------------|
 
-Shortfall: <"none" | only X of N eligible — why>
+Shortfall: <"none" | a cap was given but only X eligible issues matched — why>
 Follow-ups (combined, Rules 6–7): <list>
 Run ends at dev. Promotion to main only on explicit request.
 ```

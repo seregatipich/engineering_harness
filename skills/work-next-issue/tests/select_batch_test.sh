@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests for scripts/select_batch.sh. Stubs the `gh` CLI with a fixed dataset so
-# selection logic (priority floor, milestone restriction, label filter, N
-# rounding, explicit-first ordering, eligibility) is verified without network.
+# selection logic (scope resolution, priority floor, milestone restriction,
+# label filter, exact cap, explicit-first ordering, eligibility) is verified
+# without network.
 #
 # Run: bash tests/select_batch_test.sh
 set -euo pipefail
@@ -83,26 +84,28 @@ nums() { jq -c '[.batch[].number]' <<<"$1"; }
 
 echo "select_batch.sh"
 
+# Fully unscoped: only the nearest-due milestone that has eligible work (v1),
+# never the whole backlog. No cap, so no shortfall.
 out="$(run)"
-assert_eq "default: milestone order, excludes assigned/in-progress/closed" \
-  '[7,8,20,21,22,30]' "$(nums "$out")"
-assert_eq "default: N stays 10" '10' "$(jq -c '.n' <<<"$out")"
-assert_eq "default: filters are null/empty" \
+assert_eq "unscoped: nearest-due milestone only, priority order" \
+  '[7,8]' "$(nums "$out")"
+assert_eq "unscoped: cap is null" 'null' "$(jq -c '.cap' <<<"$out")"
+assert_eq "unscoped: filters are null/empty" \
   '{"milestone":null,"priority":null,"labels":[]}' "$(jq -c '.filters' <<<"$out")"
-assert_eq "default: shortfall recorded (6 < 10)" 'true' \
-  "$(jq -c '[.assumptions[] | test("shortfall")] | any' <<<"$out")"
+assert_eq "unscoped: no shortfall assumption (no cap to fall short of)" 'false' \
+  "$(jq -c '[.assumptions[] | test("cap of")] | any' <<<"$out")"
 
 out="$(run --priority critical)"
-assert_eq "priority floor critical keeps only critical, unassigned, open" \
+assert_eq "priority floor critical sweeps all milestones + backlog" \
   '[7,20]' "$(nums "$out")"
 assert_eq "priority echoed in filters" '"critical"' "$(jq -c '.filters.priority' <<<"$out")"
 
 out="$(run --priority high)"
-assert_eq "priority floor high keeps critical+high" \
+assert_eq "priority floor high keeps critical+high across repo" \
   '[7,8,20,30]' "$(nums "$out")"
 
 out="$(run --milestone v2)"
-assert_eq "milestone v2 restricts and skips all-open fallback (#30 absent)" \
+assert_eq "milestone v2 restricts and skips the backlog fallback (#30 absent)" \
   '[20,21,22]' "$(nums "$out")"
 
 out="$(run --milestone nope)"
@@ -111,14 +114,14 @@ assert_eq "unknown milestone -> assumption recorded" 'true' \
   "$(jq -c '[.assumptions[] | test("not found")] | any' <<<"$out")"
 
 out="$(run --label bug)"
-assert_eq "label bug filter" '[7,20,21]' "$(nums "$out")"
+assert_eq "label bug filter across milestones + backlog" '[7,20,21]' "$(nums "$out")"
 
 out="$(run --milestone v2 --priority critical --label bug)"
 assert_eq "combined filters intersect" '[20]' "$(nums "$out")"
 
 out="$(run "#22" "#7")"
-assert_eq "explicit issues come first in given order" \
-  '22 7' "$(jq -r '[.batch[0].number, .batch[1].number] | @tsv' <<<"$out" | tr '\t' ' ')"
+assert_eq "explicit issues come first in given order, no fill" \
+  '[22,7]' "$(nums "$out")"
 assert_eq "explicit issues tagged source=explicit" 'explicit explicit' \
   "$(jq -r '[.batch[0].source, .batch[1].source] | @tsv' <<<"$out" | tr '\t' ' ')"
 
@@ -126,16 +129,27 @@ out="$(run "#31")"
 assert_eq "closed explicit issue is skipped with an assumption" 'true' \
   "$(jq -c '[.assumptions[] | test("#31 is CLOSED")] | any' <<<"$out")"
 
+# Bare cap, no filter: bounded broad sweep — crosses from v1 into v2 to honor
+# the count, but never invents work beyond what is eligible.
 out="$(run 3)"
-assert_eq "N=3 raised to minimum 5" '5' "$(jq -c '.n' <<<"$out")"
-assert_eq "sub-minimum N recorded as assumption" 'true' \
-  "$(jq -c '[.assumptions[] | test("raised to 5")] | any' <<<"$out")"
-assert_eq "N=5 caps the batch" '[7,8,20,21,22]' "$(nums "$out")"
+assert_eq "cap 3 crosses milestones to honor the count" '[7,8,20]' "$(nums "$out")"
+assert_eq "cap echoed as a number" '3' "$(jq -c '.cap' <<<"$out")"
+assert_eq "cap met exactly -> no shortfall assumption" 'false' \
+  "$(jq -c '[.assumptions[] | test("cap of")] | any' <<<"$out")"
 
-out="$(run 7)"
-assert_eq "N=7 rounds up to 10" '10' "$(jq -c '.n' <<<"$out")"
-assert_eq "N rounding recorded as assumption" 'true' \
-  "$(jq -c '[.assumptions[] | test("rounded up")] | any' <<<"$out")"
+# Cap trims a filtered set.
+out="$(run 2 --priority high)"
+assert_eq "cap 2 trims the filtered sweep" '[7,8]' "$(nums "$out")"
+
+# Cap trims the explicit list (no fill beyond it).
+out="$(run 1 "#22" "#7")"
+assert_eq "cap 1 trims explicit issues, no fill" '[22]' "$(nums "$out")"
+
+# Cap larger than the eligible pool -> honest shortfall.
+out="$(run 99 --priority critical)"
+assert_eq "cap above the pool keeps only what is eligible" '[7,20]' "$(nums "$out")"
+assert_eq "cap above the pool records a shortfall" 'true' \
+  "$(jq -c '[.assumptions[] | test("cap of 99")] | any' <<<"$out")"
 
 if (( FAILED )); then
   echo "FAILED"
