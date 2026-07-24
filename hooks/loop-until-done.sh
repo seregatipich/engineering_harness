@@ -123,9 +123,9 @@ block_stop() {
 done_protocol_block() {
   cat <<'PROTOCOL'
 Definition of done (all four must hold before you stop):
-  1. Tests pass.
-  2. Lint and format are clean.
-  3. Work is committed AND pushed (where a remote exists).
+  1. All tests are written and old + new tests pass.
+  2. Lint and format are 100% clean and passing.
+  3. Work is committed AND pushed (if remote exists).
   4. You have attested completion by creating .claude/.done at the repository root.
 
 How to get there:
