@@ -129,13 +129,13 @@ Definition of done (all four must hold before you stop):
   4. You have attested completion by creating .claude/.done at the repository root.
 
 How to get there:
-  - Write tests first (superpowers:test-driven-development).
-  - Diagnose failures methodically (superpowers:systematic-debugging).
-  - Prove every claim with real command output before saying it works (superpowers:verification-before-completion).
-  - Git flow is DIRECT MERGE, no pull requests: work on feature/<name> off dev, commit AND push each logical chunk, merge into dev, and promote dev -> main only when fully done. Never commit to or branch from main/master.
-  - Run a codex review before merging.
-  - When every Stop-Ship criterion is genuinely met, create .claude/.done at the repo root.
-  - HONEST EXIT: if you genuinely cannot make further progress -- blocked on the user (credentials, a decision, or access) OR stuck on a technical dead end you cannot resolve (a check that will not pass, a hang, a missing tool, an environment you cannot fix) -- write .claude/.blocked at the repo root and stop. The file must NOT be empty: put 1-3 short lines in the user's language stating what you are blocked on and exactly what the USER must do next (the gate shows this text to the user). Do not commit or push changes the user did not ask you to make.
+  - Write tests first.
+  - Diagnose failures methodically.
+  - Prove every claim with real output before saying it works.
+  - Git flow is DIRECT MERGE, no pull requests: work on feature/<name> off dev, commit AND push each logical chunk, merge into dev, and promote dev -> main only when fully done. Do not commit to or branch from main/master unless specifically asked.
+  - Run a thorough review before merging.
+  - When every criterion is genuinely met, create .claude/.done at the repo root.
+  - HONEST EXIT: if you genuinely cannot make further progress -- blocked on the user (credentials, a decision, or access) OR stuck on a technical dead end you cannot resolve (a check that will not pass, a hang, a missing tool, an environment you cannot fix) -- write .claude/.blocked at the repo root and stop. The file must NOT be empty: put 1-5 short lines in the user's language stating what you are blocked on and exactly what the USER must do next (the gate shows this text to the user). Repeat the same explanation at the END OF YOUR OUTPUT. Do not commit or push changes the user did not ask you to make.
   - ALWAYS end your final reply with a short section addressed to the user: what was done, and "What you need to do" -- the concrete next action required from them (or state explicitly that nothing is required).
 PROTOCOL
 }
@@ -313,7 +313,7 @@ fi
 if [[ -f "$BLOCKED_MARKER" ]]; then
   BLOCKED_NOTE="$(tr -d '\r\000' < "$BLOCKED_MARKER" 2>/dev/null | head -c 1500)"
   if [[ -z "${BLOCKED_NOTE//[[:space:]]/}" ]]; then
-    block_stop ".claude/.blocked is empty. Before stopping, write INTO .claude/.blocked 1-3 short lines in the user's language: (1) what you are blocked on, (2) exactly what the USER must do next. Also end your final reply with a clear 'What you need to do' section for the user. Then stop again."
+    block_stop ".claude/.blocked is empty. Before stopping, write INTO .claude/.blocked 1-5 short lines in the user's language: (1) what you are blocked on, (2) exactly what the USER must do next. Repeat the same explanation at the end of your reply. Then stop again."
   fi
   rm -f "$BLOCKED_MARKER" "$DONE_MARKER" 2>/dev/null || true
   allow_with_system_message "⏸ Claude остановился, требуется ваше действие:
@@ -342,10 +342,10 @@ fi
 if [[ "$DONE_PRESENT" -eq 0 ]]; then
   session_is_armed || allow_stop
   if worktree_is_dirty && branch_is_protected; then
-    block_stop "You are on $(current_branch) with uncommitted changes. main/master is production-only: never commit to it or branch from it. Move your work onto feature/<name> created off dev. If the user only asked a question and there is no work to finish, write .claude/.blocked and stop."
+    block_stop "You are on $(current_branch) with uncommitted changes. Do not commit to main/master unless the user specifically asked for that; otherwise move your work onto feature/<name> created off dev. If the user did ask, or there is no work to finish, write .claude/.blocked (with a note for the user) and stop."
   fi
   if worktree_is_dirty; then
-    block_stop "You still have uncommitted changes, so the work is not finished. Commit (and later push) the work you did. Do NOT commit changes the user did not ask for. If the user only asked a question, write .claude/.blocked and stop."
+    block_stop "You still have uncommitted changes, so the work is not finished. Commit (and later push) the work you did. Do NOT commit changes the user did not ask for. If the user only asked a question, write .claude/.blocked (with a note for the user) and stop."
   fi
   block_stop "You committed work this session but have not attested completion. Verify tests and lint pass, push your commits, then create .claude/.done -- or write .claude/.blocked if you cannot proceed."
 fi
@@ -355,7 +355,7 @@ if worktree_is_dirty; then
   block_stop ".claude/.done is present but the tree still has uncommitted changes. Commit every change before attesting completion."
 fi
 if branch_is_protected; then
-  block_stop ".claude/.done is present but you are on $(current_branch). Work and completion must not live on main/master. Move the commits onto feature/<name> off dev (or, for a real promotion, write .claude/.blocked and hand it to the user)."
+  block_stop ".claude/.done is present but you are on $(current_branch). Unless the user specifically asked for work on main/master, move the commits onto feature/<name> off dev. If the user did ask (e.g. a dev -> main promotion), write .claude/.blocked explaining that and hand it to the user."
 fi
 
 HEAD_SHA="$(git_safe rev-parse HEAD 2>/dev/null || true)"
@@ -382,3 +382,4 @@ fi
 
 rm -f "$DONE_MARKER" 2>/dev/null || true
 allow_with_system_message "✅ Done-gate пройден: проверки чисты, всё закоммичено$(has_remote && printf ' и запушено'). От вас ничего не требуется."
+~Z
