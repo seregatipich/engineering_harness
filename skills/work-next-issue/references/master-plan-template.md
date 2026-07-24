@@ -2,14 +2,14 @@
 
 The plan is the contract for the rest of the run. Every step must be executable without a decision — if writing a step requires choosing, make the choice now via the decision rules and log it as a numbered assumption. Concise per step, exhaustive in coverage: no phase of the run and no issue in the batch may be missing.
 
-Post the completed plan as ONE comment on the first issue in execution order (the canonical plan comment). Link every per-issue comment back to it.
+Post the completed plan as ONE comment on the first issue in merge order (the canonical plan comment). Link every per-issue comment back to it.
 
 ## Batch-level sections
 
-1. **Objective** — one sentence: what "done" means for this batch of N.
-2. **Execution order** — the N issues in the order they will be worked, with the reason wherever it differs from priority order (dependency, shared files — Rule 8).
+1. **Objective** — one sentence: what "done" means for this batch.
+2. **Execution partition and merge order** — the output of Step 3's conflict/dependency map, never an input taken from the request: the parallel groups (disjoint files, no ordering constraint), the pipelines (dependency chains — Rule 8), and the serialized issues (overlapping files despite logical independence), each non-parallel placement with its reason; plus the single total merge order used for serial integration.
 3. **Baseline** — toolchain detection results (exact test/format/lint/typecheck commands, run recipe if any) and every pre-existing failure found on clean `dev`. Pass criterion for the run: no NEW failures versus this baseline.
-4. **Global assumptions** — numbered: N rounding, selection shortfalls, toolchain choices, integration path, anything spanning issues; each cites its decision rule.
+4. **Global assumptions** — numbered: scope resolution (which flags the request became), selection shortfalls, toolchain choices, integration path, anything spanning issues; each cites its decision rule.
 5. **Out of scope** — what will deliberately not be done batch-wide, with follow-ups.
 6. **Integration path** — base branch, per-issue branch scheme `feature/issue-<n>-<short-slug>`, merge target `dev`, `--no-ff` merges, merge order, label flow (`in-progress` → `awaiting-release`, issues stay open until promotion).
 7. **Batch progress checklist** — one line per issue, copied into responses and ticked as the run advances:
@@ -20,7 +20,7 @@ Batch progress:
 - [ ] #<n2> — plan posted / tests written / implemented / verified / merged to dev
 ```
 
-## Per-issue sections (repeated for each of the N, in execution order)
+## Per-issue sections (repeated for each issue, in merge order)
 
 8. **Issue objective** and the resolved assumptions specific to it.
 9. **Test plan (written before code)** — every test with file path, test name, what it asserts, and whether it covers happy path / edge case / failure path.
