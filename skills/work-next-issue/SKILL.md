@@ -3,9 +3,11 @@ name: work-next-issue
 description: >-
   Work a scoped set of GitHub issues end to end with zero mid-run questions:
   resolve the scope from the request (issues, milestone, priority, labels),
-  research via subagents, partition the work by dependencies and file overlap,
-  post plans on the issues, implement test-first (parallel worktrees where the
-  partition allows), verify independently, and merge to dev serially.
+  provision whatever the verification environment is missing (deps, env files,
+  services, toolchains) instead of stopping at the gap, research via subagents,
+  partition the work by dependencies and file overlap, post plans on the
+  issues, implement test-first (parallel worktrees where the partition allows),
+  verify independently, and merge to dev serially.
 when_to_use: >-
   Manual only: /work-next-issue then plain English (e.g. "the critical bugs in
   v2", "do 3 of them", "#42 #43"). Creates branches, posts issue comments, and
@@ -26,18 +28,18 @@ Preloaded environment:
 * Repo: !`gh repo view --json nameWithOwner -q .nameWithOwner 2>&1`
 * Tooling: !`missing=""; for c in gh jq git; do command -v "$c" >/dev/null 2>&1 || missing="$missing $c"; done; [ -z "$missing" ] && echo "gh, jq, git all present" || echo "MISSING:$missing"`
 
-One run takes the scoped set of issues zero to hero: select → research (subagents) → partition (parallel / pipelined / serialized) → one Master Plan → per-issue plans posted on GitHub → implement test-first (one worktree-isolated subagent per issue, concurrent where the partition allows) → verify and merge to `dev` serially.
+One run takes the scoped set of issues zero to hero: select → provision the environment and baseline → research (subagents) → partition (parallel / pipelined / serialized) → one Master Plan → per-issue plans posted on GitHub → implement test-first (one worktree-isolated subagent per issue, concurrent where the partition allows) → verify and merge to `dev` serially.
 
 ## Prerequisites
 
-* A git repo with a GitHub `origin` remote, and the `gh`, `jq`, and `git` CLIs on `PATH` (the `jq` dependency is what `scripts/select_batch.sh` uses to build the batch). If the preloaded Tooling line reports anything `MISSING`, that is a repo-level hard stop — report it and stop before touching any issue.
+* A git repo with a GitHub `origin` remote, and the `gh`, `jq`, and `git` CLIs on `PATH` (the `jq` dependency is what `scripts/select_batch.sh` uses to build the batch). If the preloaded Tooling line reports anything `MISSING`, try a user-space install first (static binary into `~/.local/bin`); it is a hard stop only if that attempt fails.
 * This skill assumes this machine's engineering harness is installed: the git policy in `rules/CLAUDE_global.md` (`main` production, `dev` integration) and the loop-until-done `Stop` hook (`~/.claude/hooks/loop-until-done.sh`). Where a step below folds in that harness (git flow in Step 2, attestation in Step 6), it degrades gracefully when a piece is absent — the note on each step says how.
 
 This skill's contract supersedes the general "ask when ambiguous" rule in this machine's global instructions (`~/.claude/CLAUDE.md`): a skill's explicit procedure is the more specific instruction for its own run. Ambiguity here is resolved by `references/decision-rules.md`, never by asking.
 
 ## Operating contract
 
-* **Zero mid-run questions.** All thinking happens in the Master Plan; execution is mechanical. Ambiguity is resolved by `references/decision-rules.md` and recorded as a numbered assumption — never asked. `AskUserQuestion` is blocked for the run via `disallowed-tools`.
+* **Zero mid-run questions.** All thinking happens in the Master Plan; execution is mechanical. Ambiguity is resolved by `references/decision-rules.md` and recorded as a numbered assumption — never asked. `AskUserQuestion` is blocked for the run via `disallowed-tools`. This covers the final message too: a run that hits a blocker still ends with the most work achievable and a factual report of what the user must do — never with a menu of options awaiting a choice.
 * **The repo is a literal.** Resolve `owner/repo` once from the preloaded environment above, then substitute the literal string into every command and every subagent prompt. Never rely on a shell variable — subagents start fresh shells and don't inherit it.
 * **User interjections don't reopen questions.** Tool grants/blocks reset with any new user message. If the user interjects mid-run, reply briefly, never use it to ask anything, and resume the plan.
 * **State lives on GitHub.** If context is compacted, do not reconstruct from memory: re-read the canonical Master Plan comment (Step 4) and per-issue comments (`gh issue view <n> --comments`), then resume from the checklist state.
@@ -45,10 +47,11 @@ This skill's contract supersedes the general "ask when ambiguous" rule in this m
 
 ## Hard stops (failures, not questions)
 
-* `gh` unauthenticated, repo unresolvable, or the Tooling line reports a `MISSING` CLI (`gh`/`jq`/`git`) — see preloaded environment → report it and stop. No work occurred, so nothing needs attesting.
+* `gh` unauthenticated, or repo unresolvable → report it and stop. A `MISSING` CLI on the Tooling line (`gh`/`jq`/`git`) → try a user-space install first (static binary into `~/.local/bin`); a hard stop only if that fails. If no work occurred, nothing needs attesting.
 * Selection returns no eligible issues → say so and stop. Never invent work.
-* Per issue: unimplementable as written (references nonexistent code, self-contradictory, needs credentials/infra the environment lacks), or 3 full verification cycles fail with no progress → post findings on the issue, mark it skipped, remove its `in-progress` label, keep `dev` clean, continue the batch.
-* Whole run: if a repo-level failure makes every remaining issue impossible, stop the batch early, write `.claude/.blocked` at the repo root with 1-5 lines on what's blocked and what the user must do, and repeat the same note in the final reply.
+* A missing tool, dependency, service, or config file is **never by itself a hard stop** — Step 2 provisions it. Only a provisioning attempt that actually failed (Step 2's definition) can block, and it blocks only the issues that need that piece.
+* Per issue: unimplementable as written (references nonexistent code, self-contradictory, needs credentials or external access that Step 2's provisioning attempts could not obtain), acceptance criteria unverifiable in every tier the environment can run, or 3 full verification cycles fail with no progress → post findings on the issue, mark it skipped, remove its `in-progress` label, keep `dev` clean, continue the batch.
+* Whole run: if a repo-level failure — or Step 2 ending with no issue verifiable — makes every remaining issue impossible, stop the batch early, write `.claude/.blocked` at the repo root with 1-5 lines on what's blocked and what the user must do, and repeat the same note in the final reply. A blocker note states what was attempted, what failed, and the exact commands that unblock it — even a fully blocked run ends with a factual report, never an options menu or a question.
 
 ## Step 1 — Select and claim the batch
 
@@ -65,11 +68,22 @@ This skill's contract supersedes the general "ask when ambiguous" rule in this m
 4. **Claim immediately:** `gh issue edit <n> --repo <owner/repo> --add-label in-progress` for every selected issue — this is what stops a concurrent run from picking up the same work.
 5. Report the batch as a table (#, title, milestone, priority, order), carry the script's `assumptions` into the Master Plan, and proceed without waiting for acknowledgment.
 
-## Step 2 — Baseline on clean `dev`
+## Step 2 — Provision the environment, then baseline on clean `dev`
 
 * Create `dev` from the default branch if it doesn't exist (per this machine's git policy in `rules/CLAUDE_global.md`: `main`/`master` is production, `dev` is integration, working branches start from and merge back into `dev`); sync it.
+
+An incomplete environment is the normal starting state of a run, not an exception. A fresh clone has no installed dependencies, no `.env`, maybe no services — the run builds what it needs before it judges what it can do. Discovering a gap and reporting it as a blocker without an attempt to close it is the one failure mode this step exists to prevent.
+
+1. **Discover what a full verification run needs.** The repo states its own requirements: README / CONTRIBUTING / AGENTS.md, the CI workflows (what CI installs and starts is the authoritative list — local verification needs the same), `docker-compose*` / devcontainer files, lockfiles, `.env.example`, setup scripts in `scripts/` or a Makefile. Turn this into a checklist: runtimes and toolchains, dependency installs, services (DB, cache), config files, provisioned test data.
+2. **Probe what's present and close the gap — provisioning is the run's work, not a blocker.** Classify each item *present and current* / *present but stale* / *absent*, then act:
+   * **Stale → bring it up to date:** install/refresh dependencies from the lockfile, sync `.env` against `.env.example` for new keys, pull or rebuild images, run migrations or the repo's test-DB script.
+   * **Absent → set it up from zero,** preferring the repo's own bootstrap path (devcontainer, compose files, Makefile or package-script setup targets, `scripts/*.sh`) over improvised installs.
+   * **Root unavailable?** Check `sudo -n true` once. Without root, use user-space routes: toolchain tarballs or version managers into `$HOME` (Go tarball, corepack/nvm), rootless container runtimes, service alternatives the repo already supports. Config files: derive `.env` from `.env.example` and docs with dev-safe values — real third-party secrets are the one thing that can never be invented.
+   * **Prove each piece by using it** — start the service and hit its healthcheck, run one real test — not by `--version`.
+3. **"Unprovisionable" is a verdict earned by a failed attempt,** never by observation alone: the fetch was actually tried and there is no network or registry access, root is genuinely required and there is no passwordless sudo *and* no user-space alternative, or the missing piece is a credential only the user holds. Record each such item in the Master Plan with the failed attempt and the exact commands the user must run. Its consequence is **per-issue, not per-run**: it excludes only the issues whose acceptance criteria cannot be exercised without it (skip those per hard stops); every other issue proceeds. The whole run stops only when nothing in the batch remains verifiable.
+
 * Detect the toolchain once: test runner, formatter, linter, type checker, and their exact invocations in this repo (`package.json`, `Makefile`, `pyproject.toml`, CI config, or an executable `.claude/verify.sh` / `scripts/verify.sh` if present — the same script the loop-until-done gate itself runs). If a run recipe exists at `.claude/skills/run-*/`, read it — it documents how to build and launch the app.
-* Run the full verification suite once on clean `dev` and record every pre-existing failure. This baseline goes in the Master Plan. Pass criterion for the whole run: **no new failures versus this baseline** — the batch is not responsible for making a previously red suite green.
+* Run the full verification suite once on clean `dev` — full meaning every tier the now-provisioned environment can run — and record every pre-existing failure, plus every tier that still could not run and why. This baseline goes in the Master Plan. Pass criterion for the whole run: **no new failures versus this baseline** — the batch is not responsible for making a previously red suite green. An issue whose acceptance criteria live entirely in a tier the baseline could not run is unverifiable — it gets skipped per the hard stops, never merged on the strength of checks that don't exercise it.
 
 ## Step 3 — Research via subagents
 
@@ -96,7 +110,7 @@ Every issue is implemented by a general-purpose subagent in its own git worktree
 * **Pipeline:** each successor only after its predecessor has merged to `dev` — it builds on that change.
 * **Serialized issues:** one at a time, each after the previous merge, so the later worktree already contains the earlier edits it overlaps with.
 
-Each subagent's prompt must inline: the literal repo, the branch to create (`feature/issue-<n>-<slug>`, via the base-pinning first command above), the issue's posted plan comment (fetch it and paste it), the full decision rules, the toolchain commands, the baseline failures, and the TDD contract — write the plan's failing tests first, then implement the numbered steps until they pass; cover happy path, edge cases, and failure paths; prefer integration tests over mocks; never skip a test, suppress a warning, disable a lint rule, or loosen a type to get green; commit to the branch per the plan's commit plan (worktrees share the repo's object store, so committed branches outlive the worktree — uncommitted work does not); no scope beyond the issue; no questions; never touch `dev`, never push, never merge.
+Each subagent's prompt must inline: the literal repo, the branch to create (`feature/issue-<n>-<slug>`, via the base-pinning first command above), the issue's posted plan comment (fetch it and paste it), the full decision rules, the toolchain commands, the worktree bootstrap from Step 2 (a fresh worktree shares the repo's refs but not its installed dependencies — give the exact commands that make the toolchain runnable there, e.g. the dependency install), the baseline failures, and the TDD contract — write the plan's failing tests first, then implement the numbered steps until they pass; cover happy path, edge cases, and failure paths; prefer integration tests over mocks; never skip a test, suppress a warning, disable a lint rule, or loosen a type to get green; commit to the branch per the plan's commit plan (worktrees share the repo's object store, so committed branches outlive the worktree — uncommitted work does not); no scope beyond the issue; no questions; never touch `dev`, never push, never merge.
 
 **Integration runs strictly serially in the main context, in the Master Plan's merge order — whatever the bucket, this phase never parallelizes.** As each subagent finishes:
 
