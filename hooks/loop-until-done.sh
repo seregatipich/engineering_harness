@@ -13,8 +13,11 @@ JQ_BIN="$(command -v jq || true)"
 PY_BIN="$(command -v python3 || true)"
 TIMEOUT_BIN="$(command -v timeout || command -v gtimeout || true)"
 
-MAX_ITERS="${CLAUDE_LOOP_MAX_ITERS:-12}"
-[[ "$MAX_ITERS" =~ ^[0-9]+$ ]] || MAX_ITERS=12
+# Claude Code natively overrides a Stop hook after it blocks 8 times in a row,
+# so keep the backstop at or below 8 -- otherwise the native override fires
+# first and this hook's cleanup (clearing a stale .done) never runs.
+MAX_ITERS="${CLAUDE_LOOP_MAX_ITERS:-8}"
+[[ "$MAX_ITERS" =~ ^[0-9]+$ ]] || MAX_ITERS=8
 LINT_TIMEOUT="${CLAUDE_LOOP_LINT_TIMEOUT:-120}"
 TEST_TIMEOUT="${CLAUDE_LOOP_TEST_TIMEOUT:-300}"
 VERIFY_TIMEOUT="${CLAUDE_LOOP_VERIFY_TIMEOUT:-480}"
@@ -135,6 +138,7 @@ How to get there:
   - Git flow is DIRECT MERGE, no pull requests: work on feature/<name> off dev, commit AND push each logical chunk, merge into dev, and promote dev -> main only when fully done. Do not commit to or branch from main/master unless specifically asked.
   - Run a thorough review before merging.
   - When every criterion is genuinely met, create .claude/.done at the repo root.
+  - NO-COMMIT TURN: a turn that produces no commits -- pure housekeeping (deleting branches/worktrees/CI runs), a read-only investigation, or a question answered -- needs neither .done nor .blocked. Just stop; the gate sees that nothing changed and lets the turn end.
   - HONEST EXIT: if you genuinely cannot make further progress -- blocked on the user (credentials, a decision, or access) OR stuck on a technical dead end you cannot resolve (a check that will not pass, a hang, a missing tool, an environment you cannot fix) -- write .claude/.blocked at the repo root and stop. The file must NOT be empty: put 1-5 short lines in the user's language stating what you are blocked on and exactly what the USER must do next (the gate shows this text to the user). Repeat the same explanation at the END OF YOUR OUTPUT. Do not commit or push changes the user did not ask you to make.
   - ALWAYS end your final reply with a short section addressed to the user: what was done, and "What you need to do" -- the concrete next action required from them (or state explicitly that nothing is required).
 PROTOCOL
@@ -354,6 +358,24 @@ fi
 if worktree_is_dirty; then
   block_stop ".claude/.done is present but the tree still has uncommitted changes. Commit every change before attesting completion."
 fi
+
+# A turn that produced no commits (HEAD unchanged since the SessionStart
+# baseline) and left a clean tree did no committable work -- housekeeping,
+# a read-only investigation, or a question answered. There is nothing to move
+# onto a feature branch, verify, or push, so let the turn end cleanly on any
+# branch instead of forcing the feature-branch / .blocked detour. Silent exit 0
+# mirrors the no-work path in the DONE_PRESENT=0 branch above. Only fires when
+# the baseline confirms HEAD never moved; a missing baseline falls through to
+# the strict path below.
+if [[ -f "$BASELINE_FILE" ]]; then
+  BASE_HEAD="$(sed -n '1p' "$BASELINE_FILE" 2>/dev/null)"
+  CUR_HEAD="$(git_safe rev-parse HEAD 2>/dev/null)"
+  if [[ -n "$BASE_HEAD" && "$CUR_HEAD" == "$BASE_HEAD" ]]; then
+    rm -f "$DONE_MARKER" 2>/dev/null || true
+    allow_stop
+  fi
+fi
+
 if branch_is_protected; then
   block_stop ".claude/.done is present but you are on $(current_branch). Unless the user specifically asked for work on main/master, move the commits onto feature/<name> off dev. If the user did ask (e.g. a dev -> main promotion), write .claude/.blocked explaining that and hand it to the user."
 fi
@@ -382,4 +404,3 @@ fi
 
 rm -f "$DONE_MARKER" 2>/dev/null || true
 allow_with_system_message "✅ Done-gate пройден: проверки чисты, всё закоммичено$(has_remote && printf ' и запушено'). От вас ничего не требуется."
-~Z
