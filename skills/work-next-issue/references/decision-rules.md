@@ -1,6 +1,8 @@
 # Decision rules — resolve, never ask
 
-Include this file's full content verbatim in every subagent prompt (research and implementation). Apply the rules in order. Record every application as a numbered assumption in the Master Plan or plan comment, citing the rule number.
+Include this file's full content verbatim in every subagent prompt (research and implementation). Apply the
+rules in order. Record every application as a numbered assumption in the Master Plan or Brief, citing the
+rule number.
 
 1. **Issue text wins.** If the issue or its comments state a preference, follow it.
 2. **Repo convention wins next.** Match existing patterns: test framework already in use, naming style, error-handling style, directory layout, existing similar features.
@@ -12,7 +14,4 @@ Include this file's full content verbatim in every subagent prompt (research and
 8. **Batch order is dependency order.** If issue B builds on issue A's change, A goes first regardless of priority; record the reordering as an assumption.
 9. **No convention exists at all?** Choose the dominant, current ecosystem default for the project's language/framework (verify against current docs, not memory) and log it as an assumption.
 10. **An environment gap is work, not a blocker.** A missing dependency install, toolchain, service, or config file gets provisioned, not reported: bring stale infra up to date, set absent infra up from zero — the repo's own setup scripts first, user-space installs (tarballs, version managers, rootless runtimes into `$HOME`) when root is unavailable. Only an attempt that actually failed for a cause outside your control (no network access, root required with no alternative, a credential only the user holds) blocks — and it blocks only the work that needs that piece. Log what was provisioned as an assumption.
-
-## Hard-stop recap (failures, not questions)
-
-Unimplementable as written, or 3 failed verification cycles with no progress → post findings, skip, keep `dev` clean, continue the batch. Missing infra → provision it (Rule 10); only a failed provisioning attempt blocks, and only the issues that need that piece. Repo-level failure (auth, unresolvable repo) → stop the run and report. Everything else is covered by the rules above.
+11. **The plan is authoritative until reality contradicts it; then it is evidence, not law.** These plans are deliberately specific — real paths, real commands, real expected output — because that specificity is what makes them executable without re-deriving the codebase. The cost of that specificity is that a wrong line is stated as confidently as a right one, and nothing downstream is inclined to doubt it. So: when what you observe contradicts something the plan asserts, do not obey it and do not quietly invent a replacement. Stop that step, record `PLAN-WRONG step=<k> claim="<quoted plan text>" observed=<command> -> <output>`, and carry on with the steps that don't depend on it. A `PLAN-WRONG` needs both the quote and the pasted output — that bar is what keeps it from becoming a general-purpose excuse. Obeying an instruction you can see is wrong is the more expensive failure: it produces a confidently broken change that verification then has to unpick.
