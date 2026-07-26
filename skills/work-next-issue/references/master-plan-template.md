@@ -62,9 +62,9 @@ Every Brief links back to it. Recovery after compaction re-reads this comment, t
    interactively, coverage thresholds off by two orders of magnitude, a parity guard that did not exist.
    A weaker executor trusts a confident wrong statement further than a strong one does.
 
-7. **Global assumptions** — numbered: scope resolution (which flags the request became, and how the repo's
-   label vocabulary mapped), selection shortfalls, toolchain choices, integration path, anything spanning
-   issues; each cites its decision rule.
+7. **Global assumptions** — numbered: scope resolution (how the request's wording was read into the
+   selected set, and how the repo's label vocabulary mapped), selection shortfalls, toolchain choices,
+   integration path, anything spanning issues; each cites its decision rule.
 
 8. **Out of scope** — what will deliberately not be done batch-wide, with follow-ups.
 

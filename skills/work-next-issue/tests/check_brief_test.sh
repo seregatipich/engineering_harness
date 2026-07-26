@@ -103,28 +103,48 @@ MUST-PASS-UNMODIFIED.
 - `tests/new_test.ts` :: `rejects an unknown event` — asserts it throws (failure)
 - `tests/registry_test.ts` :: `registry lists every handler` — asserts parity holds (edge)
 
+### Test matrix
+
+| kind | applicable | covered by |
+|---|---|---|
+| unit | yes | `tests/new_test.ts` :: `handles a connect event` |
+| integration | yes | `tests/registry_test.ts` :: `registry lists every handler` |
+| end-to-end | N/A — the handler has no user-facing surface | — |
+
 ### Docs to update
 
 `docs/handlers.md`, heading "Handlers", one table row per handler. Exhaustive: `grep -c '^|' docs/handlers.md` printed 4.
 
 ### Implementation steps
 
-1. Write `tests/new_test.ts` from the *Mirror* sibling -> makes `handles a connect event` fail for the right reason
+1. [ ] Write `tests/new_test.ts` from the *Mirror* sibling -> makes `handles a connect event` fail for the right reason
    verify: `npm test -- tests/new_test.ts` -> expect `1 failing`
    if it doesn't match: stop that step, then record PLAN-WRONG
-2. Add `src/a/new.ts` with the signature from *Contracts* -> makes the import resolve
+2. [ ] Add `src/a/new.ts` with the signature from *Contracts* -> makes the import resolve
    verify: `npx tsc --noEmit` -> expect exit 0
    if it doesn't match: bind the signature to *Contracts*, then record PLAN-WRONG
-3. Edit `src/a/b.ts` at its anchor to call the handler -> makes `handles a connect event` pass
+3. [ ] Edit `src/a/b.ts` at its anchor to call the handler -> makes `handles a connect event` pass
    verify: `npm test -- tests/new_test.ts` -> expect `2 passing`
    if it doesn't match: re-read the anchor line, then record PLAN-WRONG
-4. Append the handler in `src/registry.ts` at its anchor -> keeps `registry lists every handler` green
+4. [ ] Append the handler in `src/registry.ts` at its anchor -> keeps `registry lists every handler` green
    verify: `npm test -- tests/registry_test.ts` -> expect `1 passing`
    if it doesn't match: re-read the anchor line, then record PLAN-WRONG
 
 ### Finish checklist
 
-`npm test` -> green except the baseline failures: `tests/legacy_test.ts` (3 failing, pre-existing on dev).
+- [ ] `npm test` -> green except the baseline failures: `tests/legacy_test.ts` (3 failing, pre-existing on dev).
+- [ ] Every *Test matrix* row is satisfied and its named tests are committed.
+- [ ] Every progress report in *Progress reporting* was posted.
+
+### Progress reporting
+
+Post each checkpoint as a comment on issue #42 in acme/app, body written under WNI_SCRATCH first:
+
+1. red — tests written and observed failing, before any implementation exists
+2. green — implementation complete, the suite observed passing
+3. final — the self-report mirroring the return envelope
+
+Also post immediately on any PLAN-WRONG and on any blocker.
 
 ### Commit plan
 
@@ -137,8 +157,8 @@ MUST-PASS-UNMODIFIED.
 
 ### Return contract
 
-STATUS / BRANCH / COMMITS / FILES / STEPS / TESTS ADDED / VERIFICATION / RED-BEFORE / DEVIATIONS /
-PLAN-WRONG / UNVERIFIABLE / ASSUMPTIONS.
+STATUS / BRANCH / COMMITS / FILES / STEPS / TESTS ADDED / VERIFICATION / RED-BEFORE / REPORTS /
+DEVIATIONS / PLAN-WRONG / UNVERIFIABLE / ASSUMPTIONS.
 
 - Never skip, disable or `.skip` a test, suppress a warning, disable a lint rule, or loosen a type.
 - Never fabricate a result. If something cannot run here, say so and say why.
@@ -214,6 +234,9 @@ run_check "$(drop_section missing_mirror '### Mirror')"
 assert_eq "missing heading is a whole-document problem (LINE 0) naming the heading" "1" \
   "$(grep -c '^LINE 0: SECTIONS required heading "Mirror" is missing$' <<<"$OUT" || true)"
 assert_case "heading present but empty" "$(empty_section empty_commits '### Commit plan')" "SECTIONS"
+assert_case "missing Test matrix section" "$(drop_section missing_matrix '### Test matrix')" "SECTIONS"
+assert_case "missing Progress reporting section" \
+  "$(drop_section missing_progress '### Progress reporting')" "SECTIONS"
 
 # --- PATH ---
 assert_case "CREATE path that already exists" \
@@ -249,7 +272,9 @@ assert_case "test plan naming no test file at all" \
 
 # --- STEPS ---
 assert_case "steps not numbered contiguously" \
-  "$(mutate steps_gap 's|^3\. Edit|5. Edit|')" "STEPS"
+  "$(mutate steps_gap 's|^3\. \[ \] Edit|5. [ ] Edit|')" "STEPS"
+assert_case "step without a checkbox is not a checklist item" \
+  "$(mutate steps_nobox 's|^2\. \[ \] Add|2. Add|')" "STEPS"
 run_check "$(mutate steps_paths 's|Append the handler in `src/registry.ts`|Append the handler in `src/other.ts`|')"
 assert_eq "path swap in a step fires STEPS twice: unplanned edit and forgotten step" "1|STEPS|2" \
   "$RC|$(codes_of)|$(count_of STEPS)"

@@ -25,8 +25,9 @@
 #   PATH      a *Where things are* path that cannot be edited as written
 #   ANCHOR    an anchor literal that is not unique, or a range past end of file
 #   TESTNAME  a test path with no `:: <literal test name>` after it
-#   STEPS     steps not numbered 1..n, or a path in the table and not the steps
-#             (or the reverse) — an unplanned edit, or a forgotten step
+#   STEPS     steps not numbered 1..n, a numbered step without a `[ ]` checkbox,
+#             or a path in the table and not the steps (or the reverse) — an
+#             unplanned edit, or a forgotten step
 #   HEDGE     wording that delegates a decision to the executor
 #
 # An inline `#conformance-ok:<CODE>` comment on a line suppresses exactly that
@@ -64,9 +65,11 @@ REQUIRED_SECTIONS=(
   "Repo invariants"
   "Do NOT touch"
   "Test plan"
+  "Test matrix"
   "Docs to update"
   "Implementation steps"
   "Finish checklist"
+  "Progress reporting"
   "Commit plan"
   "Assumptions"
   "Return contract"
@@ -420,6 +423,10 @@ if find_section "Implementation steps"; then
       else
         expected=$((n + 1))
       fi
+      # The steps double as the executor's checklist; a step it cannot tick is
+      # a step whose completion nothing tracks.
+      [[ "${LINES[i]}" =~ ^[[:space:]]{0,3}[0-9]+\.[[:space:]]+\[[[:space:]xX]\] ]] \
+        || problem "$ln" STEPS "step $n is not a checklist item; write \`$n. [ ] <step>\`"
     fi
     # A path cited only inside a step is an edit the table never declared.
     extract_backticked "$t"

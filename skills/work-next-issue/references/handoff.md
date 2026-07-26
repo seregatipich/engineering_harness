@@ -27,7 +27,9 @@ correction to the prompt — that recreates the split this design exists to clos
 
 ## Writing the Brief
 
-The executor may be a cheaper model than the one writing this. It cannot re-derive the codebase, and it
+The executor **is** a cheaper model than the one writing this — implementation dispatches pass
+`model: "sonnet"` (the latest Sonnet; the `CLAUDE_CODE_SUBAGENT_MODEL` env var outranks the parameter where
+set). The Brief's detail is what makes that tier sufficient. It cannot re-derive the codebase, and it
 will not doubt a confident statement. So the Brief transcribes rather than describes, and every claim about
 a gate, guard or generator carries the command that proved it (see `master-plan-template.md`, *Verified
 facts*). A confidently wrong instruction costs far more than a missing one, because the executor has no
@@ -67,16 +69,28 @@ Canonical Master Plan: <link to the canonical plan comment>
 ### Test plan
 - `path/to/test_file` :: `<literal test name>` — asserts <what> (happy | edge | failure)
 
+### Test matrix
+| kind | applicable | covered by |
+|---|---|---|
+| unit | yes | `path/to/test_file` :: `<literal test name>` |
+| integration | yes | ... |
+| end-to-end | N/A — <reason grounded in this change> | — |
+
 ### Docs to update
 <exact file + heading + row format + whether that list is exhaustive, with the evidence>
 
 ### Implementation steps
-1. <cites rows from *Where things are*> — <the change> -> makes `<test name>` pass
+1. [ ] <cites rows from *Where things are*> — <the change> -> makes `<test name>` pass
    verify: `<command>` -> expect `<observable>`
    if it doesn't match: <what to do>, then record PLAN-WRONG
 
 ### Finish checklist
-<the literal verification command, then the allowed baseline failures BY TEST NAME>
+- [ ] <the literal verification command> -> green except the allowed baseline failures BY TEST NAME
+- [ ] every *Test matrix* row satisfied, its named tests committed
+- [ ] every report in *Progress reporting* posted
+
+### Progress reporting
+<the checkpoint comments to post on issue #<n>, per the template — see below>
 
 ### Commit plan
 <intended logical commits and their messages>
@@ -113,11 +127,35 @@ exactly what the prohibition list exists to prevent.
 line, and each closed off an expensive wrong path before it opened. Scope creep is the usual cause of a
 300-turn implementation.
 
+**Test matrix** is where "properly tested" stops being a sentiment. Enumerate every kind of verification —
+unit, integration, end-to-end, regression guards, property-based, performance, migration/rollback, docs —
+and give each row either the implemented tests that cover it (`file :: literal test name`) or
+`N/A — <reason>` grounded in this specific change, never in convenience. Two invariants: every acceptance
+criterion appears in at least one row's named test, and every named test is **implemented and committed**
+by the executor — a described test is not a test. `check_brief.sh` refuses a Brief without the section;
+the orchestrator refuses a matrix whose N/A reasons don't hold.
+
 **Finish checklist** names the allowed baseline failures by exact test file. "Some tests may fail" makes an
 executor chase ambient red or, worse, revert good work believing it caused the failure. The named list
 means it never starts.
 
-### Steps must be verifiable and falsifiable
+**Progress reporting** is the accountability trail. The executor posts checkpoint comments on the issue
+while it works (it has `gh`; the Brief carries the issue number and repo), so progress is observable from
+GitHub in real time and survives any context loss. The mandatory checkpoints:
+
+1. **red** — tests written and observed failing, before the implementation exists;
+2. **green** — implementation complete, the suite observed passing;
+3. **final** — a self-report mirroring the return envelope, posted before returning;
+
+plus one immediately on any `PLAN-WRONG` and on any blocker. Each uses the progress-report template in
+`comment-templates.md`, with real output only. Write the body to a file under `WNI_SCRATCH` and post with
+`gh issue comment <n> --repo <owner/repo> --body-file <file>` — never inline a multi-line body.
+
+### Steps must be verifiable, falsifiable — and tickable
+
+The steps double as the executor's checklist: every step starts `<n>. [ ]` (`check_brief.sh` enforces it),
+the executor works them in order, and each checkpoint comment reports which boxes are closed. The `STEPS`
+field of the return envelope is the final state of the same list — one list, tracked from dispatch to merge.
 
 Every step carries a **verify** command, its expected observable, and what to do when reality disagrees.
 This is what makes a hyper-detailed plan safe rather than brittle: the detail tells the executor what to do,
@@ -154,6 +192,7 @@ STEPS: <each numbered step: done | skipped, with why>
 TESTS ADDED: <file :: literal test name, per test>
 VERIFICATION: <each command, its real exit code, and the counts it printed>
 RED-BEFORE: <the evidence: the test run before the implementation file existed>
+REPORTS: <URL of each progress comment posted, in order: red, green, final, any PLAN-WRONG/blocker>
 DEVIATIONS: <what differed from the Brief and why> | none
 PLAN-WRONG: <see below> | none
 UNVERIFIABLE: <what could not be checked here, and why> | none
@@ -188,5 +227,7 @@ a cheap escape was available and visible:
 * When an acceptance criterion cannot be exercised in this environment: write the check completely, guard it
   so it only runs where it can, document it as **run-deferred** — and do not fake a pass. All three parts.
 * Stay inside the issue. Adjacent bugs and refactors go in the return as follow-ups, not in the diff.
+* Post every checkpoint the *Progress reporting* section names, when it falls due — the issue is the
+  record of your work, not your final message. A checkpoint reports only what actually ran.
 * You are the executor. Execute the numbered steps yourself; do not dispatch subagents.
 * Never push, never merge, never touch the integration branch. Commit to your feature branch only.
