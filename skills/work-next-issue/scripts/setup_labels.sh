@@ -2,11 +2,11 @@
 # Create the labels the work-next-issue skill needs, and only those it is missing.
 #
 # Usage: bash setup_labels.sh <owner/repo> [--map <path>]
-#   --map <path>   the label_map from select_batch.sh; `-` or omitted reads stdin.
-#                  Accepts either select_batch.sh's whole JSON object or a bare
-#                  {role: label|null} map.
+#   --map <path>   a JSON object of role -> label|null, as resolved in Step 1
+#                  from `gh label list`; `-` or omitted reads stdin. An object
+#                  with a .label_map key is unwrapped to it.
 #
-#   bash select_batch.sh acme/app --priority high | tee /tmp/batch.json \
+#   printf '%s' '{"in-progress": null, "awaiting-release": "status:shipped"}' \
 #     | bash setup_labels.sh acme/app
 #
 # A role mapped to a label already exists under that name — nothing is created,
@@ -40,7 +40,7 @@ done
 
 if [[ -z "$MAP_SRC" || "$MAP_SRC" == "-" ]]; then
   if [[ -t 0 ]]; then
-    echo "setup_labels.sh: no label_map given. Pipe select_batch.sh's output in, or pass --map <path>." >&2
+    echo "setup_labels.sh: no label_map given. Pipe the role map in, or pass --map <path>." >&2
     usage; exit 2
   fi
   raw="$(cat)"
@@ -51,7 +51,7 @@ fi
 
 if ! map_json="$(jq -ce 'if type == "object" then (.label_map // .) else error("not an object") end' <<<"$raw" 2>/dev/null)" \
    || [[ "$(jq -r 'type' <<<"$map_json")" != "object" ]]; then
-  echo "setup_labels.sh: input is not a label_map — expected a JSON object of role -> label|null (select_batch.sh's .label_map)" >&2
+  echo "setup_labels.sh: input is not a label_map — expected a JSON object of role -> label|null" >&2
   exit 2
 fi
 

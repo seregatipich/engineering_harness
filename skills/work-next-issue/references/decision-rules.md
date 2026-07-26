@@ -9,7 +9,7 @@ rule number.
 3. **Smallest correct change.** When two designs both satisfy the issue, pick the one that touches fewer files and adds no new dependencies.
 4. **Backwards compatible by default.** Do not change public interfaces, CLI flags, config keys, or API response shapes unless the issue explicitly asks for it.
 5. **New dependency only if unavoidable.** Prefer stdlib / already-installed packages. If truly required, pick the most widely used maintained option and record it as an assumption.
-6. **Scope stays inside the issue.** Adjacent bugs or refactors get noted in the closing comment as follow-up suggestions, not implemented.
+6. **Scope stays inside the issue.** Adjacent bugs or refactors get noted in the implementation report as follow-up suggestions, not implemented.
 7. **Safety over completeness.** If a sub-task would be destructive or irreversible (data migration on real data, deleting user content, force-push, rewriting history), implement the non-destructive portion and list the destructive step as a documented follow-up for the user — do not execute it and do not ask.
 8. **Batch order is dependency order.** If issue B builds on issue A's change, A goes first regardless of priority; record the reordering as an assumption.
 9. **No convention exists at all?** Choose the dominant, current ecosystem default for the project's language/framework (verify against current docs, not memory) and log it as an assumption.
