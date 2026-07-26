@@ -5,8 +5,15 @@ work is good*. Both get recorded in the Master Plan so nothing re-derives them.
 
 ## Probing
 
-Run `scripts/probe_env.sh <repo-root>` and paste its JSON into the Master Plan. It is read-only: it never
-installs and never chooses the verification command.
+Run `scripts/probe_env.sh <repo-root> > <scratch>/probe.json` and read from the file. It is read-only: it
+never installs and never chooses the verification command.
+
+**Record the conclusions in the Master Plan, never the dump.** The probe reports every toolchain it found in
+every search directory, every listening socket and the whole repo scan; on a monorepo that is several KB of
+JSON. The plan comment is re-read on every compaction recovery and by every human who opens the issue, so a
+pasted probe is paid for on each recovery and skimmed past by every reader. What belongs in the plan is the
+classification below — found current / brought up to date / set up from zero / unprovisionable — plus the
+scratch path, which is what later steps consult when they need a detail back.
 
 Two rules follow from what it returns:
 
@@ -46,9 +53,11 @@ without it. The whole run stops only when nothing in the batch remains verifiabl
 
 ## The verification command
 
-Run `scripts/ci_recipe.sh <repo-root>`. **The gate is CI's, not the repo's convenience scripts.** Where CI
-runs a stricter variant of a local command — coverage thresholds, race detection, a frozen lockfile, `CI=1`
-— the stricter variant is this run's verification command.
+Run `scripts/ci_recipe.sh <repo-root> > <scratch>/ci-recipe.txt` and read from the file — it prints every
+run body of every job of every workflow, twice (once rendered, once as JSON), which is a lot of context for
+the handful of lines that turn out to be the gate. **The gate is CI's, not the repo's convenience scripts.**
+Where CI runs a stricter variant of a local command — coverage thresholds, race detection, a frozen
+lockfile, `CI=1` — the stricter variant is this run's verification command.
 
 This is the single most expensive thing to get wrong. A local suite that is weaker than CI's lets a
 subagent report green, the orchestrator confirm green, and the integration branch go red after the merge —
