@@ -16,6 +16,24 @@ Applies to every repository. A project's own `CLAUDE.md` wins on any conflict.
 2. If it does not, open a GitHub Issue with reproduction steps, observed vs. expected behavior, suspected cause, affected files, and suggested next steps, then reference it in the final summary.
 3. If GitHub Issues are unavailable, use the project's own tracker and note the limitation.
 Investigate far enough to write a useful report, not further.
+
+## Environment and infrastructure
+ 
+Provisioning what the requested work needs in order to run and be verified is part of the task, not a separate request. A missing toolchain, dependency, service, socket, container, or config value is a work item; installing what the project's own manifests already declare is not adding a dependency.
+ 
+* Classify each piece as *present and current*, *stale*, or *absent*, then act: refresh from the lockfile, or set it up from zero, preferring the repo's own bootstrap path — devcontainer, compose file, `Makefile` or package-script setup target, `scripts/` — over an improvised install.
+* Something is absent only once you have looked for it. Check `$PATH`, `$HOME/.local/bin`, `$HOME/bin`, and version-manager roots, and check whether the repo builds the thing itself, before calling it missing.
+* Prefer the unprivileged route: official tarballs or version managers into `$HOME`, rootless container runtimes, configurable socket and port paths. Reach for `sudo` only after the unprivileged route has actually failed.
+* Prove each piece by using it — start the service and hit its healthcheck, run one real test. A `--version` string is not proof.
+* Never state a constraint you have not tested. "Needs root", "not available here", "cannot work in this environment" require a command and its output. Inferring it from a filename, a `/run/` path, or an installer you did not read is a guess.
+* Separate *missing* from *denied*. A sandboxed Bash command writes only to the working directory and `$TMPDIR`, reaches only allowed domains, and cannot run `docker`; those are policy boundaries with their own escape hatches, not absent software. Name the exact boundary.
+* "Unprovisionable" is a verdict earned by a failed attempt, never by observation alone. Report the attempt, its output, and the exact commands the user must run.
+
+## Blockers and escalation
+ 
+* Stopping is honest when you have hit the dead end, not when you predict one. Before reporting a blocker, list what you tried and what each attempt returned.
+* Do not hand back a command you could have run yourself. Escalate only what is genuinely out of reach: a credential, an access grant, a product decision, an approval, a physical action.
+* A failure that is pre-existing, outside CI's scope, or not caused by your change is context, not permission to stop. Spend the diagnostic effort on the fix, not on establishing that it is not your fault.
  
 ## Code
  
@@ -36,8 +54,10 @@ Investigate far enough to write a useful report, not further.
  
 * Every behavioral change needs automated tests covering the happy path, the edge cases, and the failure paths.
 * Prefer integration tests over mocks where practical.
-* Never route around a failing check: no skipped tests, suppressed warnings, disabled lint rules, or loosened types. Fix the cause, or stop and say why you cannot.
+* Never route around a failing check: no skipped tests, suppressed warnings, disabled lint rules, loosened types, and no `--no-verify`, `--force`, or equivalent gate bypass. Fix the cause; if you genuinely cannot, say so and show the evidence that proves it.
+* Never satisfy a check with a stub, fake, or stand-in for the real dependency it exists to exercise. Green against a fake certifies nothing. If a bare stub would satisfy the assertions, that is a defect in the test — report it, do not exploit it.
 * Report only validation that actually ran. Show the command and its output; never state that a suite passed without running it.
+* Do not call work complete while a check you know about is red, and do not narrow the claim — "the coverage subset is green" — to keep the red out of the report. State what is failing alongside what is passing.
 
 ## Compatibility
  
