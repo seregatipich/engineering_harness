@@ -9,6 +9,7 @@ Applies to every repository. A project's own `CLAUDE.md` wins on any conflict.
 * Do what was asked, nothing more. No unrequested features, no unrelated refactors, no architecture redesigns.
 * Prefer editing existing code over adding abstractions, and existing project patterns over new ones.
 * If the requirements are ambiguous, ask before implementing.
+* Changes outside the repository — global config, `~/.claude`, installed tooling, system state — are never a silent side effect. Say what you changed and why, and leave no `.bak` or `.orig` copies behind.
 
 ## Unrelated problems found along the way
  
@@ -28,6 +29,7 @@ Provisioning what the requested work needs in order to run and be verified is pa
 * Never state a constraint you have not tested. "Needs root", "not available here", "cannot work in this environment" require a command and its output. Inferring it from a filename, a `/run/` path, or an installer you did not read is a guess.
 * Separate *missing* from *denied*. A sandboxed Bash command writes only to the working directory and `$TMPDIR`, reaches only allowed domains, and cannot run `docker`; those are policy boundaries with their own escape hatches, not absent software. Name the exact boundary.
 * "Unprovisionable" is a verdict earned by a failed attempt, never by observation alone. Report the attempt, its output, and the exact commands the user must run.
+* Work running in parallel must not share mutable state. Give each worker its own database, port, socket, and temp directory, or serialize access to the shared one — a global teardown in one worker destroys a sibling's in-flight run.
 
 ## Blockers and escalation
  
@@ -50,13 +52,21 @@ Provisioning what the requested work needs in order to run and be verified is pa
 * Update project documentation when behavior, APIs, configuration, setup, architecture, or deployment changes, following the existing docs structure.
 * Link to related specs, ADRs, RFCs, schemas, and tickets instead of restating them.
 
-## Testing and validation
+## Testing
  
 * Every behavioral change needs automated tests covering the happy path, the edge cases, and the failure paths.
 * Prefer integration tests over mocks where practical.
-* Never route around a failing check: no skipped tests, suppressed warnings, disabled lint rules, loosened types, and no `--no-verify`, `--force`, or equivalent gate bypass. Fix the cause; if you genuinely cannot, say so and show the evidence that proves it.
 * Never satisfy a check with a stub, fake, or stand-in for the real dependency it exists to exercise. Green against a fake certifies nothing. If a bare stub would satisfy the assertions, that is a defect in the test — report it, do not exploit it.
+* A test owns the state it asserts on. An absolute count or identity asserted over state shared with other tests is order-dependent by construction; scope the assertion to the rows, files, or keys that test created.
+
+## Validation and reporting
+ 
+* Reproduce what CI runs *and the state it runs in* — a fresh database, container, or tree wherever CI gets one. A failure produced by state you carried over between runs belongs to your process, not to the code.
+* Exit status must survive the pipeline. Never read pass/fail from a command that ends in `| tail`, `| grep`, or a pager: that reports the last stage's status, not the check's. Capture the real status and take the verdict from it.
+* Never route around a failing check: no skipped tests, suppressed warnings, disabled lint rules, loosened types, and no `--no-verify`, `--force`, or equivalent gate bypass. Fix the cause; if you genuinely cannot, say so and show the evidence that proves it.
 * Report only validation that actually ran. Show the command and its output; never state that a suite passed without running it.
+* No all-clear while a check is still in flight. "Nothing is broken" is a claim about checks that have concluded and whose output you have read, never about ones you expect to pass.
+* A delegate's report is a claim, not evidence. Verify it before building on it, and hold delegated work to the bar you would hold your own — including any gate it bypassed.
 * Do not call work complete while a check you know about is red, and do not narrow the claim — "the coverage subset is green" — to keep the red out of the report. State what is failing alongside what is passing.
 
 ## Compatibility
